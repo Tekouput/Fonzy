@@ -16,6 +16,7 @@ default: &default
   username: root
   password: admin
   socket: /var/run/mysqld/mysqld.sock
+  posrt: 3306
 
 development:
   <<: *default
@@ -49,6 +50,7 @@ test:
 #
 production:
   <<: *default
+  host: fonzy-api.c78skszfk9a2.us-west-2.rds.amazonaws.com
   database: Fonzy_production
-  username: Fonzy
+  username: fonzy_api
   password: <%= ENV['FONZY_DATABASE_PASSWORD'] %>

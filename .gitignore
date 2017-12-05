@@ -14,3 +14,12 @@
 !/tmp/.keep
 
 .byebug_history
+.idea/dictionaries/
+.idea/inspectionProfiles/
+.idea/workspace.xml
+config/application.yml
+db/migrate/
+log/.keep
+public/system/
+test/
+tmp/.keep
