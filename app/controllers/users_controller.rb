@@ -79,7 +79,7 @@ class UsersController < ApplicationController
       end
       image.save!
       user.hair_dresser.save!
-      render json: user.hair_dresser.pictures.all, status: :ok
+      render json: user.hair_dresser.pictures.all.to_json(methods: [:images]), status: :ok
     else
       render json: {error: 'No hairdresser status associated'}, status: :bad_request
     end

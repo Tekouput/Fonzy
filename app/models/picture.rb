@@ -4,4 +4,10 @@ class Picture < ApplicationRecord
 
   has_attached_file :image, styles: { big: "500x500>", medium: "300x300>", thumb: "100x100>" }, default_url: "/images/missing.png"
   validates_attachment_content_type :image, content_type: /\Aimage\/.*\z/
+
+  def images
+    {big: self.image.url(:big), medium: self.image.url(:medium), thumb: self.image.url(:thumb)}
+  end
+
+
 end
