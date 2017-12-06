@@ -2,11 +2,16 @@ class UsersController < ApplicationController
   skip_before_action :authenticate_request, only: :create
 
   def create
-    user = User.create! email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
-    if user
-      render json: user, status: :created
+    u = User.find_by_email params[:email]
+    if u
+      render json: {error: 'User exist'}, status: :bad_request
     else
-      render json: {error: 'Error occurred review passwords or check logs'}, status: :bad_request
+      user = User.new email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
+      if user.save
+        render json: user, status: :created
+      else
+        render json: {error: 'Error occurred review passwords or check logs'}, status: :bad_request
+      end
     end
   end
 
