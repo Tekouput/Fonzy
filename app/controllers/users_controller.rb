@@ -72,13 +72,18 @@ class UsersController < ApplicationController
     picture = params[:picture]
     main = params[:main]
     image = Picture.new(image: picture)
-    user.hair_dresser.pictures << image
-    if main.eql? 'true'
-      user.hair_dresser.picture = image
+    if user.hair_dresser
+      user.hair_dresser.pictures << image
+      if main.eql? 'true'
+        user.hair_dresser.picture = image
+      end
+      image.save!
+      user.hair_dresser.save!
+      render json: user.hair_dresser.pictures.all, status: :ok
+    else
+      render json: {error: 'No hairdresser status associated'}, status: :bad_request
     end
-    image.save!
-    user.hair_dresser.save!
-    render json: user.hair_dresser.pictures.all, status: :ok
+
   end
 
   def remove_image
