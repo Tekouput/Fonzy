@@ -4,14 +4,16 @@ class ServicesController < ApplicationController
   attr_accessor :resource
 
   def create
+    @resource = nil
+    @resource = current_user unless (@resource.try(:owner) == current_user) && (request.original_url.include? 'stores')
     if @resource.nil?
-      render json: {error: "It's possible that the especified user doesnt have an store or that the store doesnt exist"}, status: :not_found
+      render json: {error: "User or store not found"}, status: :not_found
     else
       service = Service.new(
-          name: params['name'],
-          description: params['description'],
-          price: params['price'],
-          duration: params['duration']
+        name: params['name'],
+        description: params['description'],
+        price: params['price'],
+        duration: params['duration']
       )
       @resource.services << service
       service.save!
@@ -30,7 +32,7 @@ class ServicesController < ApplicationController
 
   def destroy
     service = Service.find(params[:id])
-    service.destroy if (service.watcher == current_user || service.watcher.try(:owner) == current_user)
+    service.destroy if service.watcher == current_user || service.watcher.try(:owner) == current_user
     render json: current_user.services.all, status: :ok
   end
 
