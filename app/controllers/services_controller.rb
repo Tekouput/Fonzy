@@ -5,13 +5,13 @@ class ServicesController < ApplicationController
 
   def create
 
-    if request.original_url.include? 'users'
-      @resource = current_user
+    @resource = if request.original_url.include? 'users'
+      current_user
     elsif @resource.try(:owner) == current_user
-      @resource = @resource
+      @resource
     else
-      @resource == nil
-    end
+      nil
+                end
 
     if @resource.nil?
       render json: {error: "User or store not found"}, status: :not_found
