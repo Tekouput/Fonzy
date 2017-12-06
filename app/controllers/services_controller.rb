@@ -28,13 +28,15 @@ class ServicesController < ApplicationController
     end
   end
 
+  def destroy
+    service = Service.find(params[:id])
+    service.destroy if (service.watcher == current_user || service.watcher.try(:owner) == current_user)
+    render json: current_user.services.all, status: :ok
+  end
+
   private
 
   def set_resource
-    if current_user.nil?
-      (request.original_url.include? 'stores') ? (@resource = (Store.find params[:store_id])) : (authenticate_request; (@resource = current_user))
-    else
-      (request.original_url.include? 'stores') ? (@resource = (current_user.stores.where params[:store_id]).first) : (@resource = current_user)
-    end
+    (request.original_url.include? 'stores') ? (@resource = Store.find(params[:id])) : (@resource = User.find(params[:id]))
   end
 end
