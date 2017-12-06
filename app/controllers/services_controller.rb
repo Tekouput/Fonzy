@@ -1,10 +1,8 @@
 class ServicesController < ApplicationController
   skip_before_action :authenticate_request, only: :show
-  before_action :set_resource
   attr_accessor :resource
 
   def create
-
     @resource = if request.original_url.include? 'users'
       current_user
     elsif @resource.try(:owner) == current_user
@@ -30,6 +28,7 @@ class ServicesController < ApplicationController
   end
 
   def show
+    set_resource
     if @resource.nil?
       render json: {error: "It's possible that the especified user doesnt have an store or that the store doesnt exist"}, status: :not_found
     else
