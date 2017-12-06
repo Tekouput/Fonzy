@@ -40,7 +40,15 @@ class UsersController < ApplicationController
   def bind_hair_dresser
     user = current_user
     if user
-      hairdresser_info = HairDresser.new(is_independent: params[:is_independent], longitud: params[:longitude], latitud: params[:latitude], description: params[:description], online_payment: params[:online_payment], state: params[:state], time_table: params[:time_table])
+      hairdresser_info = HairDresser.new(
+        is_independent: params[:is_independent],
+        longitud: params[:longitude],
+        latitud: params[:latitude],
+        description: params[:description],
+        online_payment: params[:online_payment],
+        state: params[:state],
+        time_table: params[:time_table]
+      )
       user.hair_dresser = hairdresser_info
       user.id_hairdresser = true
       user.save!
