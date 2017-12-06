@@ -15,7 +15,7 @@ class UsersController < ApplicationController
     end
   end
 
-  def put
+  def update
     user = current_user
 
     if user
@@ -25,9 +25,6 @@ class UsersController < ApplicationController
       user.sex = params[:sex]
       user.zip_code = params[:zip]
       user.phone_number = params[:phone_number]
-      user.last_location = params[:last_location]
-      user.is_shop_owner = params[:is_shop_owner]
-      user.id_hairdresser = params[:hair_dresser]
       user.save! ? (render json: user, status: :ok) : (render json: {error: 'Error occurred while saving changes'}, status: :bad_request)
     else
       render json: {error: 'Error occurred while saving changes'}, status: :bad_request
