@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   resource :stores
 
   scope :users do
+
+    get '/profile', to: 'users#show_public'
+
     patch '/hairdressers/bind', to: 'users#bind_hair_dresser'
     delete '/hairdressers/bind', to: 'users#unbind_hair_dresser'
 

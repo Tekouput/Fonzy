@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  skip_before_action :authenticate_request, only: :create
+  skip_before_action :authenticate_request, only: [:create, :show_public]
 
   def create
     u = User.find_by_email params[:email]
@@ -90,6 +90,11 @@ class UsersController < ApplicationController
     user = current_user
     picture = Picture.find params[:id]
     user.hair_dresser.pictures.destroy(picture)
+    render json: user.hair_dresser.pictures.all.to_json(methods: [:images]), status: :ok
+  end
+
+  def show_public
+    render json: User.sanitize_atributes(params[:id]), status: :ok
   end
 
   # Add retrieve hair dresser
