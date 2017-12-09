@@ -50,7 +50,7 @@ class StoresController < ApplicationController
     render json: { stores: stores, independents: independents, google_maps: maps }, status: :ok
   end
 
-  def put
+  def update
     store = current_store_auth
     if store
       store.name = params[:name]
@@ -59,6 +59,7 @@ class StoresController < ApplicationController
       store.zip_code = params[:zip_code]
       store.description = params[:description]
       store.time_table = params[:time_table]
+      store.style = params[:style]
       store.save! ? (render json: store, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
     else
       render json: { error: 'Error occurred while saving changes' }, status: :bad_request
