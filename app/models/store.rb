@@ -9,7 +9,18 @@ class Store < ApplicationRecord
   has_one :picture, as: :store_showcase
   has_many :services, as: :watcher
   has_many :appointments, as: :handler
-  reverse_geocoded_by :longitude, :latitude
+  reverse_geocoded_by :longitude, :latitude do |obj, results|
+    if geo = results.first
+      pr = {
+          city: geo.city,
+          state: geo.state,
+          zipcode: geo.postal_code,
+          country: geo.country,
+          address: geo.address_components
+      }
+      obj.address = pr
+    end
+  end
   after_validation :reverse_geocode
 
   def self.s_near_by_google(latitude, longitude, distance, style)

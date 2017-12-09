@@ -20,13 +20,13 @@ class StoresController < ApplicationController
     if params[:maps]
       render json: Store.retrieve_from_google(params[:store_id]), status: :ok
     else
-      render json: current_store, status: :ok
+      render json: current_store.to_json(methods: [:reverse_geocode]), status: :ok
     end
 
   end
 
   def show_all
-    render json: { basic_info: current_store, hairdressers: current_store.users.all, services: current_store.services.all, photos: current_store.pictures }, code: :ok
+    render json: { basic_info: JSON.parse(current_store.to_json(methods: [:reverse_geocode])), hairdressers: current_store.users.all, services: current_store.services.all, photos: current_store.pictures, owner: current_store.owner }, code: :ok
   end
 
   def show_filtered
