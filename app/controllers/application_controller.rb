@@ -22,7 +22,7 @@ class ApplicationController < ActionController::API
     response = http.request(request)
     body = JSON.parse(response.read_body)
 
-    p body["data"]
+    p body[data]
     render json: body['data'].each { |d| d[:images]}, status: :ok
   end
 
