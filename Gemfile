@@ -29,6 +29,7 @@ gem 'omniauth-google-oauth2'
 gem "paperclip", "~> 5.0.0"
 gem 'geocoder'
 gem 'aws-sdk'
+gem 'execjs'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
