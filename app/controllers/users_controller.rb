@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  skip_before_action :authenticate_request, only: [:create, :show, :show_public]
+  skip_before_action :authenticate_request, only: [:create, :show_public]
 
   def create
     u = User.find_by_email params[:email]

@@ -2,7 +2,7 @@ class StoresController < ApplicationController
   skip_before_action :authenticate_request, only: %i[show show_images show_filtered show_all show_list]
 
   def create
-    store = Store.new(name: params[:name], longitude: params[:longitude], latitude: params[:latitude], zip_code: params[:zip_code], description: params[:description], time_table: params[:time_table], style: params[:style])
+    store = Store.new(name: params[:name], longitude: params[:longitude], latitude: params[:latitude], zip_code: params[:zip_code], description: params[:description], style: params[:style])
     store.owner = current_user
     store.save!
 
