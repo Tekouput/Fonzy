@@ -22,7 +22,7 @@ class Store < ApplicationRecord
     end
   end
   after_validation :reverse_geocode
-  has_one :time_table, as: :handler, optional: true
+  has_one :time_table, as: :handler
   has_many :bookmarks, as: :entity
 
   def self.s_near_by_google(latitude, longitude, distance, style)
