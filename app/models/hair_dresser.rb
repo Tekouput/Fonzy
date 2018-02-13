@@ -5,4 +5,6 @@ class HairDresser < ApplicationRecord
   has_many :appointments, as: :handler
   reverse_geocoded_by :longitud, :latitud
   after_validation :reverse_geocode
+  has_one :time_table, as: :handler
+  has_many :bookmarks, as: :entity
 end

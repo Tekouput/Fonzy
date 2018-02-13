@@ -5,7 +5,7 @@ class User < ApplicationRecord
   has_many :services, as: :watcher
   has_one :hair_dresser, dependent: :destroy
   has_many :appointments
-  # has_many :payment_methods
+  has_many :bookmarks
 
   def self.sanitize_atributes(id)
     user = User.find(id)

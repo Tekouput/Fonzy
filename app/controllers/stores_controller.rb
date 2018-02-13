@@ -1,5 +1,5 @@
 class StoresController < ApplicationController
-  skip_before_action :authenticate_request, only: %i[show show_images show_filtered show_all]
+  skip_before_action :authenticate_request, only: %i[show show_images show_filtered show_all show_list]
 
   def create
     store = Store.new(name: params[:name], longitude: params[:longitude], latitude: params[:latitude], zip_code: params[:zip_code], description: params[:description], time_table: params[:time_table], style: params[:style])
@@ -22,7 +22,10 @@ class StoresController < ApplicationController
     else
       render json: current_store.to_json(methods: [:reverse_geocode]), status: :ok
     end
+  end
 
+  def show_list
+    render json: Store.all, status: :ok
   end
 
   def show_all
@@ -37,7 +40,7 @@ class StoresController < ApplicationController
 
     p latitude, longitude, distance_break, style
 
-    local_stores = Store.near([latitude, longitude], distance_break).where(style: style)
+    local_stores = Store.near([latitude, longitude], distance_break)#.where(style: style)
     places_stores = Store.s_near_by_google(latitude, longitude, distance_break, style)
     independents = HairDresser.near([latitude, longitude], distance_break).where(is_independent: true)
 
@@ -124,7 +127,131 @@ class StoresController < ApplicationController
     render json: {}, status: :ok
   end
 
+  # Time table methods
+  def get_a_time_table
+    begin
+
+      start_date = params[:s_day] || Time.now
+      end_date = params[:e_day] || Time.now + 7.days
+
+      p start_date, end_date
+
+      time_table = current_store.time_table
+      time_sections = time_table.time_sections.select {|tt| tt.day ? (params[:day].include? tt.day.to_s) : false}
+      breaks = time_sections.each {|ts| ts.breaks}
+      absences = time_table.absences.where("day >= ? AND day <= ?", start_date, end_date)
+      render json: {time_sections: time_sections, breaks: breaks, absences: absences}, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def modify_timetable
+    collides = collision_with_day? params[:timetable_params][:content]
+    if !(collides)[:collision]
+      tt = add_a_timetable(params[:timetable_params][:content])
+      render json: tt, status: :ok
+    else
+      render json: collides, status: :conflict
+    end
+  end
+
+  def update_time_section
+    begin
+      time_section = current_store_auth.time_table.time_sections.find(params[:time_section_id])
+      time_section.update!(params[:time_section_params].permit!)
+      render json: time_section, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def delete_time_section
+    begin
+      store = current_store_auth
+      (store.time_table.time_sections.find params[:id]).destroy!
+      render json: {}, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def collision_check
+    begin
+      collides = collision_with_day? params[:timetable_params][:content]
+      render json: collides, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def add_break
+    begin
+      time_sectio = current_store_auth.time_table.time_sections.find params[:time_section_id]
+      time_sectio.breaks << Break.create!(day: params['day'],
+                                          init: params['init'],
+                                          duration: params['duration'],
+                                          time_section: time_sectio)
+      render json: time_sectio.breaks, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def delete_break
+    begin
+      time_sectio = current_store_auth.time_table.time_sections.find params[:time_section_id]
+      break_ = time_sectio.breaks.find params[:break_id]
+      break_.destroy!
+      render json: time_sectio.breaks, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
   private
+
+  def add_a_timetable(content)
+
+    c_store = current_store_auth
+
+    unless c_store.time_table
+      c_store.time_table = TimeTable.create!(handler: user_t)
+    end
+
+    tt = TimeSection.create!(day: content['day'],
+                             init: content['init'],
+                             end: content['end'],
+                             time_table: c_store.time_table)
+
+    c_store.time_table.time_sections << tt
+    tt
+  end
+
+  def collision_with_day?(content)
+    c_store = current_store_auth
+
+    init = content['init']
+    fin = content['end']
+    time_table = c_store.time_table
+
+    if time_table
+      time_table.time_sections.where(day: content['day']).each do |ts|
+        if  (init <= ts.init && fin > ts.init) ||
+            (fin >= ts.end && init < ts.end) ||
+            (init >= ts.init && fin <= ts.end) ||
+            (init <= ts.init && fin >= ts.end)
+          p true
+          return {collision: true, cause: ts}
+        else
+          return {collision: false, cause: nil}
+        end
+      end
+      {collision: false, cause: nil}
+    else
+      {collision: false, cause: nil}
+    end
+  end
 
   def current_store_auth
     current_user.stores.where(id: params[:store_id]).first

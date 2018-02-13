@@ -10,7 +10,16 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191203031017) do
+ActiveRecord::Schema.define(version: 20191203031022) do
+
+  create_table "absences", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "time_table_id"
+    t.date "day"
+    t.integer "init"
+    t.integer "duration"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "appointments", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "handler_id"
@@ -22,6 +31,24 @@ ActiveRecord::Schema.define(version: 20191203031017) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "state", default: false, null: false
+    t.date "book_date"
+  end
+
+  create_table "bookmarks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "user_id"
+    t.string "entity_id"
+    t.string "entity_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "breaks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "day"
+    t.integer "init"
+    t.integer "duration"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "time_section_id"
   end
 
   create_table "hair_dressers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -36,6 +63,7 @@ ActiveRecord::Schema.define(version: 20191203031017) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "time_table", limit: 4294967295
+    t.string "address"
   end
 
   create_table "pictures", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -73,8 +101,8 @@ ActiveRecord::Schema.define(version: 20191203031017) do
     t.datetime "updated_at", null: false
     t.decimal "ratings", precision: 2, scale: 2
     t.string "owner_type", limit: 45
-    t.text "time_table", limit: 4294967295
     t.string "place_id"
+    t.json "address"
   end
 
   create_table "stores_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -82,6 +110,22 @@ ActiveRecord::Schema.define(version: 20191203031017) do
     t.integer "user_id"
     t.boolean "confirmed", default: false
     t.string "confirmation_class"
+  end
+
+  create_table "time_sections", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.integer "day"
+    t.integer "init"
+    t.integer "end"
+    t.string "time_table_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "time_tables", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "handler_id"
+    t.string "handler_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
