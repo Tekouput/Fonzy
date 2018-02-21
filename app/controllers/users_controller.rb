@@ -210,7 +210,7 @@ class UsersController < ApplicationController
   # Bookmarks methods
 
   def get_bookmark
-    render json: current_user.bookmarks.each { |bm| bm.entity }, status: :ok
+    render json: current_user.bookmarks, status: :ok
   end
 
   def add_bookmark
@@ -228,6 +228,52 @@ class UsersController < ApplicationController
   end
 
   def remove_bookmark
+    begin
+      current_user.bookmarks.find params[:id_bookmark].destroy!
+      render json: current_user.bookmarks, status: :ok
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
+  end
+
+  # Bookings methods
+
+  def bookings
+    begin
+      render json: current_user.appointments
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
+  end
+
+  def add_booking
+    begin
+      type = params[:type]
+      id = params[:entity_id]
+
+      Appointment.create!(
+          handler: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id),
+          user: current_user,
+          service: (Service.find params[:service_id]),
+          book_time: params[:book_time],
+          book_notes: params[:book_notes],
+          book_date: params[:book_date],
+          state: true
+      )
+
+      bookings
+
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
+  end
+
+  def remove_booking
+    begin
+      (current_user.appointments.find params[:booking_id]).state = false;
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
   end
 
   private

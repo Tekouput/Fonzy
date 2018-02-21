@@ -30,6 +30,12 @@ Rails.application.routes.draw do
       delete '/absence', to: 'users#delete_absence'
     end
 
+    scope '/bookings' do
+      get '/', to: 'users#bookings'
+      post '/new', to: 'users#add_booking'
+      delete '/deactive', to: 'users#remove_booking'
+    end
+
     scope '/bookmark' do
       get '/', to: 'users#get_bookmark'
       post '/:type', to: 'users#add_bookmark'
