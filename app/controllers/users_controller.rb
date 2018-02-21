@@ -270,7 +270,10 @@ class UsersController < ApplicationController
 
   def remove_booking
     begin
-      (current_user.appointments.find params[:booking_id]).state = false;
+      booking = (current_user.appointments.find params[:booking_id])
+      booking.state = false
+      booking.save!
+      bookings
     rescue => e
       render json: { error: e }, status: :bad_request
     end
