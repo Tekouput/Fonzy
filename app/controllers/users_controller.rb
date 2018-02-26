@@ -50,8 +50,7 @@ class UsersController < ApplicationController
         latitud: params[:latitude],
         description: params[:description],
         online_payment: params[:online_payment],
-        state: params[:state],
-        time_table: '[{"breaks":[],"sections":[]},{"breaks":[],"sections":[]},{"breaks":[],"sections":[]},{"breaks":[],"sections":[]},{"breaks":[],"sections":[]},{"breaks":[],"sections":[]},{"breaks":[],"sections":[]}]'
+        state: params[:state]
       )
       user.hair_dresser = hairdresser_info
       user.id_hairdresser = true
