@@ -4,21 +4,21 @@ class ServicesController < ApplicationController
 
   def create
     @resource = if request.original_url.include? 'users'
-      current_user
-    elsif @resource.try(:owner) == current_user
-      @resource
-    else
-      nil
+                  current_user
+                elsif @resource.try(:owner) == current_user
+                  @resource
+                else
+                  nil
                 end
 
     if @resource.nil?
       render json: {error: "User or store not found"}, status: :not_found
     else
       service = Service.new(
-        name: params['name'],
-        description: params['description'],
-        price: params['price'],
-        duration: params['duration']
+          name: params['name'],
+          description: params['description'],
+          price: params['price'],
+          duration: params['duration']
       )
       @resource.services << service
       service.save!

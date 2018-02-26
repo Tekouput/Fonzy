@@ -50,7 +50,7 @@ Rails.application.routes.draw do
 
   scope :stores do
     get '/list', to: 'stores#show_list'
-    get '/:scope', to: 'stores#show_filtered'
+    get '/area', to: 'stores#show_filtered'
     get '/:store_id/all_info', to: 'stores#show_all'
 
     get '/hairdressers', to: 'stores#show_dressers'
