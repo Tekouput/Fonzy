@@ -1,5 +1,5 @@
 class StoresController < ApplicationController
-  skip_before_action :authenticate_request, only: %i[show show_images show_filtered show_all show_list]
+  skip_before_action :authenticate_request, only: %i[show show_images show_filtered show_all show_list show_dressers]
 
   def create
     store = Store.new(name: params[:name], longitude: params[:longitude], latitude: params[:latitude], zip_code: params[:zip_code], description: params[:description], style: params[:style])
@@ -70,17 +70,24 @@ class StoresController < ApplicationController
   end
 
   def show_dressers
+    begin
     render json: current_store.users.all, status: :ok
+    rescue => e
+      render json: {error: e, store: current_store}, status: :bad_request
+    end
   end
 
   def append_dresser
     store = current_store_auth
-    success = true
+    success = false
     if store
       hair_dresser = User.find params[:dresser_id]
       if hair_dresser
         p store
-        store.users << hair_dresser
+        unless store.users.where(id: hair_dresser.id).size > 0
+          store.users << hair_dresser
+          success = true
+        end
       else
         success = false
       end
@@ -89,7 +96,7 @@ class StoresController < ApplicationController
     if success
       render json: store.users.all, status: :ok
     else
-      render json: { error: 'User not found or invalid' }, status: :bad_request
+      render json: { error: 'Invalid request' }, status: :bad_request
     end
   end
 

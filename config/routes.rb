@@ -54,8 +54,8 @@ Rails.application.routes.draw do
     get '/:store_id/all_info', to: 'stores#show_all'
 
     get '/hairdressers', to: 'stores#show_dressers'
-    put '/hairdresser/:store_id/:dresser_id', to: 'stores#append_dresser'
-    delete '/hairdresser/:store_is/:dresser_id', to: 'stores#unbind_dresser'
+    put '/hairdressers', to: 'stores#append_dresser'
+    delete '/hairdressers', to: 'stores#unbind_dresser'
 
     scope '/images' do
       get '/:store_id', to: 'stores#show_images'
