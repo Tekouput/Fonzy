@@ -284,7 +284,7 @@ class UsersController < ApplicationController
 
   def remove_bookmark
     begin
-      current_user.bookmarks.find params[:id_bookmark].destroy!
+      (current_user.bookmarks.find params[:id_bookmark]).destroy!
       render json: current_user.bookmarks, status: :ok
     rescue => e
       render json: { error: e }, status: :bad_request
