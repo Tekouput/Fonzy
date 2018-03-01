@@ -99,7 +99,7 @@ class UsersController < ApplicationController
     begin
       store = Store.find params[:store_id]
       hair_dresser = current_user.hair_dresser
-      unless StoresHairdresser.where(store: store, hair_dresser: hair_dresser).size > 0
+      if !(StoresHairdresser.where(store: store, hair_dresser: hair_dresser).size > 0)
         sh = StoresHairdresser.new(
             store: store,
             hair_dresser: hair_dresser,
@@ -107,8 +107,9 @@ class UsersController < ApplicationController
         )
         sh.save!
         render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+      else
+        render json: {message: 'User already appended'}, status: :not_modified
       end
-      render json: {message: 'User already appended'}, status: :not_modified
     rescue => e
       render json: { error: e }, status: :bad_request
     end
