@@ -3,13 +3,9 @@ class ServicesController < ApplicationController
   attr_accessor :resource
 
   def create
-    @resource = if request.original_url.include? 'users'
-                  current_user
-                elsif @resource.try(:owner) == current_user
-                  @resource
-                else
-                  nil
-                end
+
+    @resource = nil
+    set_resource_auth
 
     if @resource.nil?
       render json: {error: "User or store not found"}, status: :not_found
@@ -46,5 +42,9 @@ class ServicesController < ApplicationController
 
   def set_resource
     (request.original_url.include? 'stores') ? (@resource = Store.find(params[:id])) : (@resource = User.find(params[:id]))
+  end
+
+  def set_resource_auth
+    (request.original_url.include? 'stores') ? (@resource = current_user.stores.find(params[:id])) : (@resource = current_user)
   end
 end
