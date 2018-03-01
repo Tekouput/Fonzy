@@ -11,8 +11,17 @@ Rails.application.routes.draw do
 
     get '/profile', to: 'users#show_public'
 
-    patch '/hairdressers/bind', to: 'users#bind_hair_dresser'
-    delete '/hairdressers/bind', to: 'users#unbind_hair_dresser'
+    scope '/hairdressers' do
+      scope '/stores' do
+        get '/', to: 'users#show_shops'
+        put '/', to: 'users#append_dresser'
+        delete '/', to: 'users#unbind_dresser'
+        patch '/confirmation', to: 'users#confirmation_set'
+      end
+
+      patch '/bind', to: 'users#bind_hair_dresser'
+      delete '/bind', to: 'users#unbind_hair_dresser'
+    end
 
     post '/images/:main', to: 'users#add_image'
     delete '/images/:id', to: 'users#remove_image'
@@ -53,11 +62,12 @@ Rails.application.routes.draw do
     get '/area', to: 'stores#show_filtered'
     get '/:store_id/all_info', to: 'stores#show_all'
 
-    get '/hairdressers', to: 'stores#show_dressers'
-    put '/hairdressers', to: 'stores#append_dresser'
-    delete '/hairdressers', to: 'stores#unbind_dresser'
-
-    patch '/hairdressers/confirmation', to: 'stores#confirmation_set'
+    scope '/hairdressers' do
+      get '/', to: 'stores#show_dressers'
+      put '/', to: 'stores#append_dresser'
+      delete '/', to: 'stores#unbind_dresser'
+      patch '/confirmation', to: 'stores#confirmation_set'
+    end
 
     scope '/images' do
       get '/:store_id', to: 'stores#show_images'

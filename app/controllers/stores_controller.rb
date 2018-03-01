@@ -69,6 +69,8 @@ class StoresController < ApplicationController
     end
   end
 
+  # Dresser system methods.
+
   def show_dressers
     begin
       render json: StoresHairdresser.where(store: current_store), status: :ok

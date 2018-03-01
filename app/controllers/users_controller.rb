@@ -45,12 +45,12 @@ class UsersController < ApplicationController
     user = current_user
     if user
       hairdresser_info = HairDresser.new(
-        is_independent: params[:is_independent],
-        longitud: params[:longitude],
-        latitud: params[:latitude],
-        description: params[:description],
-        online_payment: params[:online_payment],
-        state: params[:state]
+          is_independent: params[:is_independent],
+          longitud: params[:longitude],
+          latitud: params[:latitude],
+          description: params[:description],
+          online_payment: params[:online_payment],
+          state: params[:state]
       )
       user.hair_dresser = hairdresser_info
       user.id_hairdresser = true
@@ -68,6 +68,61 @@ class UsersController < ApplicationController
     user.id_hairdresser = false
     user.save!
     render json: { user: user, hairdresser_info: user.hair_dresser }, status: :ok
+  end
+
+  # Hairdresser system methods.
+
+  def show_shops
+    begin
+      render json: StoresHairdresser.where(hair_dresser: current_user.hair_dresser), status: :ok
+    rescue => e
+      render json: { error: e, user: current_user }, status: :bad_request
+    end
+  end
+
+  def confirmation_set
+    begin
+      store = Store.find params[:store_id]
+      hair_dresser = current_user.hair_dresser
+      confirmation = StoresHairdresser.where(store: store, hair_dresser: hair_dresser, confirmer: hair_dresser).first
+      if confirmation.status == 0
+        confirmation.status = (params[:accept] == 'true' ? 1 : 2)
+        confirmation.save!
+      end
+      render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
+  end
+
+  def append_dresser
+    begin
+      store = Store.find params[:store_id]
+      hair_dresser = current_user.hair_dresser
+      unless StoresHairdresser.where(store: store, hair_dresser: hair_dresser).size > 0
+        sh = StoresHairdresser.new(
+            store: store,
+            hair_dresser: hair_dresser,
+            confirmer: store
+        )
+        sh.save!
+        render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+      end
+      render json: {message: 'User already appended'}, status: :not_modified
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
+  end
+
+  def unbind_dresser
+    begin
+      store = Store.find params[:store_id]
+      hair_dresser = current_user.hair_dresser
+      StoresHairdresser.where(store: store, hair_dresser: hair_dresser).first.destroy!
+      render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+    rescue => e
+      render json: { error: e }, status: :bad_request
+    end
   end
 
   # Image methods
@@ -113,7 +168,7 @@ class UsersController < ApplicationController
 
       time_table = (HairDresser.find params[:h_id]).time_table
       time_sections = time_table.time_sections.where(day: params[:day])
-      breaks = time_sections.each { |ts| ts.breaks }
+      breaks = time_sections.each {|ts| ts.breaks}
       absences = time_table.absences.where("day >= ? AND day <= ?", start_date, end_date)
       render json: { time_sections: time_sections, breaks: breaks, absences: absences }, status: :ok
     rescue => e
@@ -217,8 +272,8 @@ class UsersController < ApplicationController
       type = params[:type]
       id = params[:entity_id]
       Bookmark.create!(
-        user: current_user,
-        entity: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id)
+          user: current_user,
+          entity: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id)
       )
       get_bookmark
     rescue => e
@@ -305,7 +360,7 @@ class UsersController < ApplicationController
 
     if time_table
       time_table.time_sections.where(day: content['day']).each do |ts|
-        if  (init <= ts.init && fin > ts.init) ||
+        if (init <= ts.init && fin > ts.init) ||
             (fin >= ts.end && init < ts.end) ||
             (init >= ts.init && fin <= ts.end) ||
             (init <= ts.init && fin >= ts.end)
