@@ -71,9 +71,24 @@ class StoresController < ApplicationController
 
   def show_dressers
     begin
-    render json: current_store.users.all, status: :ok
+      render json: StoresHairdresser.where(store: current_store), status: :ok
     rescue => e
       render json: {error: e, store: current_store}, status: :bad_request
+    end
+  end
+
+  def confirmation_set
+    begin
+      store = current_store_auth
+      hair_dresser = HairDresser.find params[:dresser_id]
+      confirmation = StoresHairdresser.where(store: store, hair_dresser: hair_dresser, confirmer: store).first
+      if confirmation.status == 0
+        confirmation.status = (params[:accept] == 'true' ? 1 : 2)
+        confirmation.save!
+      end
+      render json: StoresHairdresser.where(store: store), status: :ok
+    rescue => e
+      render json: { error: e }, status: :bad_request
     end
   end
 
@@ -81,11 +96,15 @@ class StoresController < ApplicationController
     store = current_store_auth
     success = false
     if store
-      hair_dresser = User.find params[:dresser_id]
+      hair_dresser = HairDresser.find params[:dresser_id]
       if hair_dresser
-        p store
-        unless store.users.where(id: hair_dresser.id).size > 0
-          store.users << hair_dresser
+        unless StoresHairdresser.where(store: store, hair_dresser: hair_dresser).size > 0
+          sh = StoresHairdresser.new(
+            store: store,
+            hair_dresser: hair_dresser,
+            confirmer: hair_dresser
+          )
+          sh.save!
           success = true
         end
       else
@@ -94,20 +113,20 @@ class StoresController < ApplicationController
     end
 
     if success
-      render json: store.users.all, status: :ok
+      render json: StoresHairdresser.where(store: store), status: :ok
     else
       render json: { error: 'Invalid request' }, status: :bad_request
     end
   end
 
   def unbind_dresser
-    store = current_store_auth
-    if store
-      hair_dresser = User.find params[:dresser_id]
-      store.users.delete(hair_dresser)
-      render json: store.users.all, status: :ok
-    else
-      render json: { error: 'You don\'t own this store' }, status: :unauthorized
+    begin
+      store = current_store_auth
+      hair_dresser = HairDresser.find params[:dresser_id]
+      StoresHairdresser.where(store: store, hair_dresser: hair_dresser).first.destroy!
+      render json: StoresHairdresser.where(store: store), status: :ok
+    rescue => e
+      render json: { error: e}, status: :bad_request
     end
   end
 

@@ -7,4 +7,8 @@ class HairDresser < ApplicationRecord
   after_validation :reverse_geocode
   has_one :time_table, as: :handler
   has_many :bookmarks, as: :entity
+
+  has_many :stores_hairdressers
+  has_many :stores, :through => :stores_hairdressers
+  has_many :stores_hairdressers, as: :confirmer
 end

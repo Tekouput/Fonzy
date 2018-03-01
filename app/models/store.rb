@@ -4,7 +4,11 @@ require "addressable/uri"
 
 class Store < ApplicationRecord
   belongs_to :owner, polymorphic: true
-  has_and_belongs_to_many :users
+
+  has_many :stores_hairdressers
+  has_many :hair_dressers, :through => :stores_hairdressers
+  has_many :stores_hairdressers, as: :confirmer
+
   has_many :pictures, as: :owner
   has_one :picture, as: :store_showcase
   has_many :services, as: :watcher

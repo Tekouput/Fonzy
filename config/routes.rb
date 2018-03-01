@@ -57,6 +57,8 @@ Rails.application.routes.draw do
     put '/hairdressers', to: 'stores#append_dresser'
     delete '/hairdressers', to: 'stores#unbind_dresser'
 
+    patch '/hairdressers/confirmation', to: 'stores#confirmation_set'
+
     scope '/images' do
       get '/:store_id', to: 'stores#show_images'
       post '/:store_id/:main', to: 'stores#add_image'
