@@ -21,4 +21,19 @@ class User < ApplicationRecord
     clean_user
   end
 
+  def sanitize_atributes
+    user = self
+    clean_user = {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        sex: user.sex,
+        profile_picture: user.profile_pic,
+        phone_number: user.phone_number,
+        email: user.email,
+        store: user.stores.all,
+        hairdresser_information: user.hair_dresser
+    }
+    clean_user
+  end
+
 end

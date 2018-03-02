@@ -56,6 +56,8 @@ class UsersController < ApplicationController
       user.id_hairdresser = true
       user.save!
 
+      hairdresser_info.reverse_geocode
+
       hairdresser_info.save! ? (render json: { user: user, hairdresser_info: hairdresser_info }, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
     else
       render json: { error: 'Error occurred while saving changes' }, status: :bad_request
@@ -169,7 +171,7 @@ class UsersController < ApplicationController
 
       time_table = (HairDresser.find params[:h_id]).time_table
       time_sections = time_table.time_sections.where(day: params[:day])
-      breaks = time_sections.each {|ts| ts.breaks}
+      breaks = time_sections.each(&:breaks)
       absences = time_table.absences.where("day >= ? AND day <= ?", start_date, end_date)
       render json: { time_sections: time_sections, breaks: breaks, absences: absences }, status: :ok
     rescue => e
@@ -265,17 +267,37 @@ class UsersController < ApplicationController
   # Bookmarks methods
 
   def get_bookmark
-    render json: current_user.bookmarks, status: :ok
+    entities = []
+    for bm in current_user.bookmarks
+      entity = bm.entity
+      address = JSON.parse(entity.address.to_json)
+      bm_entity = entity.as_json
+      if entity.class == HairDresser
+        bm_entity[:user] = entity.user.sanitize_atributes
+      else
+        bm_entity[:main_image] = entity.picture.images
+        bm_entity[:images] = entity.pictures.map {|img| img.images}
+      end
+      bm_entity[:address] = address
+      entities << bm_entity
+
+    end
+    render json: entities, status: :ok
   end
 
   def add_bookmark
     begin
       type = params[:type]
       id = params[:entity_id]
-      Bookmark.create!(
+      entity = (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id)
+
+      bm = Bookmark.new(
           user: current_user,
-          entity: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id)
+          entity: entity
       )
+
+      current_user.bookmarks << bm unless (current_user.bookmarks.where(user: current_user, entity: entity).size > 0)
+
       get_bookmark
     rescue => e
       render json: { error: e }, status: :bad_request
