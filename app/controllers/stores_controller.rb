@@ -280,12 +280,4 @@ class StoresController < ApplicationController
       {collision: false, cause: nil}
     end
   end
-
-  def current_store_auth
-    current_user.stores.where(id: params[:store_id]).first
-  end
-
-  def current_store
-      Store.where(id: params[:store_id]).first
-  end
 end

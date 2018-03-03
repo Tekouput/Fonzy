@@ -2,7 +2,12 @@ Rails.application.routes.draw do
 
   post '/authenticate', to: 'authentication#authenticate'
   get '/user/:provider/token', to: 'authentication#omniauth'
+
   get '/instagram-feed', to: 'application#instagram_pictures'
+
+  scope '/find' do
+    get '/user', to: 'application#query_user'
+  end
 
   resource :users
   resource :stores
@@ -21,6 +26,8 @@ Rails.application.routes.draw do
 
       patch '/bind', to: 'users#bind_hair_dresser'
       delete '/bind', to: 'users#unbind_hair_dresser'
+
+      resource :clients
     end
 
     post '/images/:main', to: 'users#add_image'
@@ -86,5 +93,6 @@ Rails.application.routes.draw do
     end
 
     resource :services
+    resource :clients
   end
 end

@@ -22,4 +22,8 @@ class HairDresser < ApplicationRecord
   has_many :stores_hairdressers
   has_many :stores, :through => :stores_hairdressers
   has_many :stores_hairdressers, as: :confirmer
+
+  has_many :clients, as: :lister
+  has_many :users, through: :clients
+
 end

@@ -6,6 +6,17 @@ class User < ApplicationRecord
   has_many :appointments
   has_many :bookmarks
 
+  geocoded_by :last_ip do |obj, results|
+    if geo = results.first
+      obj.last_location = "#{geo.city}, #{geo.country}"
+    end
+      p results.first
+  end
+
+  scope :filter_name, -> (name) { where("concat_ws(' ', first_name, last_name) like ?", "%#{name}%")}
+
+
+
   def self.sanitize_atributes(id)
     user = User.find(id)
     clean_user = {
@@ -33,7 +44,17 @@ class User < ApplicationRecord
         store: user.stores.all,
         hairdresser_information: user.hair_dresser
     }
-    clean_user
+  end
+
+  def simple_info
+    user = self
+    {
+        first_name: user.first_name,
+        last_name: user.last_name,
+        sex: user.sex,
+        profile_picture: user.profile_pic,
+        address: user.last_location
+    }
   end
 
 end

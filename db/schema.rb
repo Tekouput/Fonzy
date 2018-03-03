@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191203031022) do
+ActiveRecord::Schema.define(version: 20191203031023) do
 
   create_table "absences", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "time_table_id"
@@ -51,6 +51,14 @@ ActiveRecord::Schema.define(version: 20191203031022) do
     t.string "time_section_id"
   end
 
+  create_table "clients", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "lister_id"
+    t.string "lister_type"
+    t.string "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "hair_dressers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.boolean "is_independent"
     t.string "longitud"
@@ -63,7 +71,7 @@ ActiveRecord::Schema.define(version: 20191203031022) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.text "time_table", limit: 4294967295
-    t.string "address"
+    t.json "address"
   end
 
   create_table "pictures", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -103,13 +111,15 @@ ActiveRecord::Schema.define(version: 20191203031022) do
     t.string "owner_type", limit: 45
     t.string "place_id"
     t.json "address"
+    t.string "style", limit: 45
   end
 
-  create_table "stores_users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "stores_hairdressers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.integer "store_id"
-    t.integer "user_id"
-    t.boolean "confirmed", default: false
-    t.string "confirmation_class"
+    t.integer "hair_dresser_id"
+    t.string "confirmer_id"
+    t.string "confirmer_type"
+    t.integer "status", default: 0
   end
 
   create_table "time_sections", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -131,7 +141,7 @@ ActiveRecord::Schema.define(version: 20191203031022) do
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "first_name"
     t.string "last_name"
-    t.string "age"
+    t.date "age"
     t.string "sex"
     t.string "zip_code"
     t.string "profile_pic"

@@ -29,6 +29,9 @@ class Store < ApplicationRecord
   has_one :time_table, as: :handler
   has_many :bookmarks, as: :entity
 
+  has_many :clients, as: :lister
+  has_many :users, through: :clients
+
   def self.s_near_by_google(latitude, longitude, distance, style)
 
     f = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=#{latitude},#{longitude}&radius=#{distance}&type=#{style}&key=#{ENV['GOOGLE_KEY_MAPS']}"

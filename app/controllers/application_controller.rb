@@ -5,7 +5,7 @@ require "addressable/uri"
 class ApplicationController < ActionController::API
   before_action :authenticate_request
   attr_reader :current_user
-  skip_before_action :authenticate_request, only: :instagram_pictures
+  skip_before_action :authenticate_request, only: [:instagram_pictures, :query_user]
 
   def instagram_pictures
     token = '6700053376.fa55fde.f78bb592d8ac4bc884fde11c851cc31c'
@@ -25,10 +25,22 @@ class ApplicationController < ActionController::API
     render json: body['data'].each { |d| d[:images]}, status: :ok
   end
 
+  def query_user
+    render json: (User.filter_name params['qv']).map {|us| us.simple_info}, status: :ok
+  end
+
   private
 
   def authenticate_request
     @current_user = AuthorizeApiRequest.call(request.headers).result
     render json: { error: 'Not Authorized' }, status: 401 unless @current_user
+  end
+
+  def current_store_auth
+    current_user.stores.where(id: params[:store_id]).first
+  end
+
+  def current_store
+    Store.where(id: params[:store_id]).first
   end
 end
