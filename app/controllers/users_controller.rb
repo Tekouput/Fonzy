@@ -275,7 +275,7 @@ class UsersController < ApplicationController
       if entity.class == HairDresser
         bm_entity[:user] = entity.user.sanitize_atributes
       else
-        bm_entity[:main_image] = entity.picture.images
+        bm_entity[:main_image] = entity.try(:picture).try(:images)
         bm_entity[:images] = entity.pictures.map {|img| img.images}
       end
       bm_entity[:address] = address
