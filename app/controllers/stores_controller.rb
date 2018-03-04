@@ -25,7 +25,7 @@ class StoresController < ApplicationController
   end
 
   def show_list
-    render json: Store.all, status: :ok
+    render json: Store.all.paginate(page: params[:page]).order(created_at: :asc), status: :ok
   end
 
   def show_all
@@ -38,11 +38,22 @@ class StoresController < ApplicationController
     distance_break = params['distance_break']
     style = params['style']
 
-    p latitude, longitude, distance_break, style
-
-    local_stores = Store.near([latitude, longitude], distance_break)#.where(style: style)
-    places_stores = Store.s_near_by_google(latitude, longitude, distance_break, style)
+    local_stores = Store.near([latitude, longitude], distance_break).where("style LIKE ?", "#{style}")
+    places_stores = Store.near_by_google(latitude, longitude, distance_break, style)
     independents = HairDresser.near([latitude, longitude], distance_break).where(is_independent: true)
+
+    local_stores = Store.open_at(DateTime.parse(params[:open_at]), local_stores) if params[:open_at].present?
+    local_stores = Store.open_at_time(params[:time], local_stores) if params[:time].present?
+    local_stores = Store.open_at_day(params[:day], local_stores) if params[:day].present?
+    local_stores = Store.average_price(params[:price], local_stores) if params[:price].present?
+    local_stores = Store.get_by_city(params[:city], local_stores) if params[:city].present?
+
+    independents = HairDresser.open_at(DateTime.parse(params[:open_at]), independents) if params[:open_at].present?
+    independents = HairDresser.open_at_time(params[:time], independents) if params[:time].present?
+    independents = HairDresser.open_at_day(params[:day], independents) if params[:day].present?
+    independents = HairDresser.average_price(params[:price], independents) if params[:price].present?
+    independents = HairDresser.get_by_city(params[:city], independents) if params[:city].present?
+
 
     stores = local_stores.to_a
     maps = []

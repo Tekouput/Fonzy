@@ -18,18 +18,19 @@ gem 'puma', '~> 3.7'
 # Use Redis adapter to run Action Cable in production
 # gem 'redis', '~> 3.0'
 # Use ActiveModel has_secure_password
+gem 'figaro'
 gem 'jwt'
 gem 'simple_command'
-gem 'figaro'
 
+gem 'aws-sdk'
+gem 'execjs'
+gem 'geocoder'
 gem 'koala'
 gem 'omniauth'
 gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
 gem "paperclip", "~> 5.0.0"
-gem 'geocoder'
-gem 'aws-sdk'
-gem 'execjs'
+gem 'will_paginate', '~> 3.1.0'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development

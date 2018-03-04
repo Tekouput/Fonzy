@@ -2,10 +2,11 @@ Rails.application.routes.draw do
 
   post '/authenticate', to: 'authentication#authenticate'
   get '/user/:provider/token', to: 'authentication#omniauth'
-
   get '/instagram-feed', to: 'application#instagram_pictures'
 
   scope '/find' do
+    get '/list', to: 'stores#show_list'
+    get '/places', to: 'stores#show_filtered'
     get '/user', to: 'application#query_user'
   end
 
@@ -27,7 +28,12 @@ Rails.application.routes.draw do
       patch '/bind', to: 'users#bind_hair_dresser'
       delete '/bind', to: 'users#unbind_hair_dresser'
 
+      resource :services
       resource :clients
+    end
+
+    scope '/images' do
+
     end
 
     post '/images/:main', to: 'users#add_image'
@@ -60,13 +66,10 @@ Rails.application.routes.draw do
 
     get '/available_times', to: 'appointments#available_times'
 
-    resource :services
     resource :appointments
   end
 
   scope :stores do
-    get '/list', to: 'stores#show_list'
-    get '/area', to: 'stores#show_filtered'
     get '/:store_id/all_info', to: 'stores#show_all'
 
     scope '/hairdressers' do
