@@ -30,6 +30,7 @@ Rails.application.routes.draw do
 
       resource :services
       resource :clients
+      resource :bookings
     end
 
     scope '/images' do
@@ -97,5 +98,6 @@ Rails.application.routes.draw do
 
     resource :services
     resource :clients
+    resource :bookings
   end
 end

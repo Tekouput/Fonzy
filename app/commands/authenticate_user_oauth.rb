@@ -1,9 +1,8 @@
 class AuthenticateUserOauth
   prepend SimpleCommand
 
-  def initialize(uuid, provider)
-    @uuid = uuid
-    @provider = provider
+  def initialize(email)
+    @email = email
   end
 
   def call
@@ -16,10 +15,10 @@ class AuthenticateUserOauth
 
   private
 
-  attr_accessor :uuid, :provider
+  attr_accessor :email
 
   def user
-    user = User.where(uuid: uuid, provider: provider).first_or_create
+    user = User.where(email: email).first_or_create
     return user if user
 
     errors.add :user_authentication, 'couldn\'t connect'

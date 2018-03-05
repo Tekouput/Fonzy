@@ -4,7 +4,12 @@ class UsersController < ApplicationController
   def create
     u = User.find_by_email params[:email]
     if u
-      render json: { error: 'User exist' }, status: :bad_request
+      if u.password_digest.blank?
+        u.update! password: params[:password], password_confirmation: params[:password_confirmation]
+        render json: u, status: :ok
+      else
+        render json: { error: 'User exist' }, status: :bad_request
+      end
     else
       user = User.new email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
       if user.save
