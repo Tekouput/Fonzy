@@ -47,7 +47,6 @@ class ClientsController < ApplicationController
 
   def set_lister
     @lister = (request.original_url.include? 'stores') ? current_store_auth : current_user.hair_dresser
-    p @lister
   end
 
 end

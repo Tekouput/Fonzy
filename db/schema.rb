@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191203031023) do
+ActiveRecord::Schema.define(version: 20191203031024) do
 
   create_table "absences", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "time_table_id"
@@ -32,6 +32,19 @@ ActiveRecord::Schema.define(version: 20191203031023) do
     t.datetime "updated_at", null: false
     t.boolean "state", default: false, null: false
     t.date "book_date"
+  end
+
+  create_table "bookings_requests", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "handler_id"
+    t.string "handler_type"
+    t.string "user_id"
+    t.integer "status"
+    t.integer "service_id"
+    t.string "book_time"
+    t.text "book_notes"
+    t.date "book_date"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "bookmarks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -57,6 +70,7 @@ ActiveRecord::Schema.define(version: 20191203031023) do
     t.string "user_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "note"
   end
 
   create_table "hair_dressers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -156,6 +170,7 @@ ActiveRecord::Schema.define(version: 20191203031023) do
     t.string "uuid"
     t.string "provider"
     t.string "last_location"
+    t.string "last_ip", limit: 45
   end
 
 end

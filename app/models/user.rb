@@ -5,6 +5,7 @@ class User < ApplicationRecord
   has_one :hair_dresser, dependent: :destroy
   has_many :appointments
   has_many :bookmarks
+  has_many :bookings_requests
 
   geocoded_by :last_ip do |obj, results|
     if geo = results.first

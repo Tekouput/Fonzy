@@ -88,7 +88,7 @@ class Store < ApplicationRecord
   belongs_to :owner, polymorphic: true
 
   has_many :stores_hairdressers
-  has_many :hair_dressers, :through => :stores_hairdressers
+  has_many :hair_dressers, through: :stores_hairdressers
   has_many :stores_hairdressers, as: :confirmer
 
   has_many :pictures, as: :owner
@@ -114,7 +114,8 @@ class Store < ApplicationRecord
   has_many :clients, as: :lister
   has_many :users, through: :clients
 
-
+  has_many :bookings_requests, as: :handler
+  has_many :users, through: :bookings_requests
 
   def self.near_by_google(latitude, longitude, distance, style)
     f = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=#{latitude},#{longitude}&radius=#{distance}&type=#{style}&key=#{ENV['GOOGLE_KEY_MAPS']}"

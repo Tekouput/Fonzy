@@ -21,11 +21,14 @@ class HairDresser < ApplicationRecord
   has_many :bookmarks, as: :entity
 
   has_many :stores_hairdressers
-  has_many :stores, :through => :stores_hairdressers
+  has_many :stores, through: :stores_hairdressers
   has_many :stores_hairdressers, as: :confirmer
 
   has_many :clients, as: :lister
   has_many :users, through: :clients
+
+  has_many :bookings_requests, as: :handler
+  has_many :users, through: :bookings_requests
 
 
   def self.open_at(time, stores)

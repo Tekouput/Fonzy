@@ -57,6 +57,8 @@ Rails.application.routes.draw do
       get '/', to: 'users#bookings'
       post '/new', to: 'users#add_booking'
       delete '/deactive', to: 'users#remove_booking'
+      patch :confirm, to: 'bookings#confirm'
+      get :confirm, to: 'bookings#show_confirmations'
     end
 
     scope '/bookmark' do
