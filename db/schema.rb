@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191203031024) do
+ActiveRecord::Schema.define(version: 20191203031025) do
 
   create_table "absences", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "time_table_id"
@@ -108,6 +108,14 @@ ActiveRecord::Schema.define(version: 20191203031024) do
     t.string "duration"
     t.integer "watcher_id"
     t.string "watcher_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "store_transactions", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+    t.string "requester_id"
+    t.string "store_id"
+    t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end

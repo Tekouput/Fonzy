@@ -101,5 +101,8 @@ Rails.application.routes.draw do
     resource :services
     resource :clients
     resource :bookings
+    resource :store_transactions do
+      patch :confirm
+    end
   end
 end
