@@ -44,6 +44,37 @@ class UsersController < ApplicationController
     render json: User.sanitize_atributes(params[:id]), status: :ok
   end
 
+  # Images
+
+  def add_image
+    begin
+      user = current_user
+      picture = params[:picture]
+      image = Picture.create!(image: picture)
+      user.pictures << image
+      user.profile_pic = image.id
+      user.save!
+      render json: User.sanitize_atributes(user.id), status: :ok
+    rescue => e
+      render json: {error: e}, status: :ok
+    end
+  end
+
+  def remove_image
+    begin
+      user = current_user
+      user.profile_pic = ''
+      user.save!
+      render json: User.sanitize_atributes(user.id), status: :ok
+    rescue => e
+      render json: {error: e}, status: :ok
+    end
+  end
+
+  def change_image
+
+  end
+
   # Hair dressser methods
 
   def bind_hair_dresser
@@ -131,33 +162,6 @@ class UsersController < ApplicationController
     rescue => e
       render json: { error: e }, status: :bad_request
     end
-  end
-
-  # Image methods
-
-  def add_image
-    user = current_user
-    picture = params[:picture]
-    main = params[:main]
-    image = Picture.new(image: picture)
-    if user.hair_dresser
-      user.hair_dresser.pictures << image
-      if main.eql? 'true'
-        user.hair_dresser.picture = image
-      end
-      image.save!
-      user.hair_dresser.save!
-      render json: user.hair_dresser.pictures.all.to_json(methods: [:images]), status: :ok
-    else
-      render json: { error: 'No hairdresser status associated' }, status: :bad_request
-    end
-  end
-
-  def remove_image
-    user = current_user
-    picture = Picture.find params[:id]
-    user.hair_dresser.pictures.destroy(picture)
-    render json: user.hair_dresser.pictures.all.to_json(methods: [:images]), status: :ok
   end
 
   # Timetable methods

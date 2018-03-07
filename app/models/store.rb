@@ -92,7 +92,8 @@ class Store < ApplicationRecord
   has_many :stores_hairdressers, as: :confirmer
 
   has_many :pictures, as: :owner
-  has_one :picture, as: :store_showcase
+  has_one :picture, as: :owner_main
+
   has_many :services, as: :watcher
   has_many :appointments, as: :handler
   reverse_geocoded_by :longitude, :latitude do |obj, results|

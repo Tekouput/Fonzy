@@ -1,8 +1,10 @@
 class HairDresser < ApplicationRecord
   belongs_to :user
+
   has_many :pictures, as: :owner
+  has_one :picture, as: :owner_main
+
   has_many :services, as: :watcher
-  has_one :picture, as: :store_showcase
   has_many :appointments, as: :handler
   reverse_geocoded_by :longitud, :latitud do |obj, results|
       if geo = results.first

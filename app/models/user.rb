@@ -6,6 +6,7 @@ class User < ApplicationRecord
   has_many :appointments
   has_many :bookmarks
   has_many :bookings_requests
+  has_many :pictures, as: :owner
 
   geocoded_by :last_ip do |obj, results|
     if geo = results.first
@@ -24,7 +25,7 @@ class User < ApplicationRecord
       first_name: user.first_name,
       last_name: user.last_name,
       sex: user.sex,
-      profile_picture: user.profile_pic,
+      profile_picture: user.pictures.where(id: user.profile_pic).try(:first).try(:images),
       phone_number: user.phone_number,
       email: user.email,
       store: user.stores.all,

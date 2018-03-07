@@ -31,14 +31,8 @@ Rails.application.routes.draw do
       resource :services
       resource :clients
       resource :bookings
+      resource :pictures
     end
-
-    scope '/images' do
-
-    end
-
-    post '/images/:main', to: 'users#add_image'
-    delete '/images/:id', to: 'users#remove_image'
 
     scope '/timetable' do
       get '/', to: 'users#get_timetable'
@@ -67,7 +61,11 @@ Rails.application.routes.draw do
       delete '/', to: 'users#remove_bookmark'
     end
 
-    get '/available_times', to: 'appointments#available_times'
+    scope '/images' do
+      post '/', to: 'users#add_image'
+      delete '/', to: 'users#remove_image'
+      patch '/', to: 'users#change_image'
+    end
 
     resource :appointments
   end
@@ -80,12 +78,6 @@ Rails.application.routes.draw do
       put '/', to: 'stores#append_dresser'
       delete '/', to: 'stores#unbind_dresser'
       patch '/confirmation', to: 'stores#confirmation_set'
-    end
-
-    scope '/images' do
-      get '/:store_id', to: 'stores#show_images'
-      post '/:store_id/:main', to: 'stores#add_image'
-      delete '/:store_id/:id', to: 'stores#remove_image'
     end
 
     scope '/timetable' do
@@ -104,5 +96,6 @@ Rails.application.routes.draw do
     resource :store_transactions do
       patch :confirm
     end
+    resource :pictures
   end
 end

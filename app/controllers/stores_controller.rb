@@ -143,29 +143,6 @@ class StoresController < ApplicationController
     end
   end
 
-  # Images methods
-
-  def show_images
-    store = current_store
-    render json: store.pictures.all, status: :ok
-  end
-
-  def add_image
-    store = current_store_auth
-    picture = params[:picture]
-    main = params[:main]
-    image = Picture.new(image: picture)
-    store.pictures << image
-    store.picture = image if main
-    image.save!
-    render json: current_store_auth.pictures.all, status: :ok
-  end
-
-  def remove_image
-    current_store_auth.pictures.destroy(params[:id])
-    render json: {}, status: :ok
-  end
-
   # Time table methods
   def get_a_time_table
     begin
