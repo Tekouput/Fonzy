@@ -72,7 +72,6 @@ class StoresController < ApplicationController
       store.latitude = params[:latitude]
       store.zip_code = params[:zip_code]
       store.description = params[:description]
-      store.time_table = params[:time_table]
       store.style = params[:style]
       store.save! ? (render json: store, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
     else

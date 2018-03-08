@@ -31,6 +31,7 @@ gem 'omniauth-facebook'
 gem 'omniauth-google-oauth2'
 gem "paperclip", "~> 5.0.0"
 gem 'will_paginate', '~> 3.1.0'
+gem 'mailgun-ruby', '~>1.1.6'
 
 # Use Capistrano for deployment
 # gem 'capistrano-rails', group: :development
