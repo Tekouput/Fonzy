@@ -1,5 +1,6 @@
 class PicturesController < ApplicationController
-  before_action :set_resource
+  before_action :set_resource, except: :show
+  skip_before_action :authenticate_request, only: :show
 
   def create
     begin
@@ -34,14 +35,21 @@ class PicturesController < ApplicationController
   end
 
   def show
+    set_resource_public
     begin
-      render json: {main: @resource.try(:picture).try(:images), images: @resource.try(:pictures).map(&:images)}, status: :ok
+      images = @resource.try(:pictures).map(&:images)
+      render json: {main: @resource.try(:picture).try(:images) || images.first, images: images}, status: :ok
     rescue => e
       render json: { error: e }, status: :ok
     end
   end
 
   private
+
+
+  def set_resource_public
+    @resource = (request.original_url.include? 'stores') ? Store.find(params[:store_id]) : HairDresser.find(params[:dresser_id])
+  end
 
   def set_resource
     @resource = (request.original_url.include? 'stores') ? current_store_auth : current_user.hair_dresser
