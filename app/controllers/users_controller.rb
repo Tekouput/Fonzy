@@ -280,14 +280,21 @@ class UsersController < ApplicationController
     for bm in current_user.bookmarks
       entity = bm.entity
       address = JSON.parse(entity.address.to_json)
-      bm_entity = entity.as_json
+      bm_entity = {}.as_json
+      bm_entity[:id] = entity.id
       if entity.class == HairDresser
-        bm_entity[:user] = entity.user.sanitize_atributes
+        bm_entity[:name] = "#{entity.user.first_name} #{entity.user.last_name}"
+        bm_entity[:type] = 'HairDresser'
+        bm_entity[:profile_picture] = entity.try(:picture).try(:images) || entity.try(:pictures).try(:first).try(:images)
+        bm_entity[:address] = "#{address['city']}, #{address['country']}"
+        bm_entity[:rating] = entity.rating
       else
-        bm_entity[:main_image] = entity.try(:picture).try(:images)
-        bm_entity[:images] = entity.pictures.map {|img| img.images}
+        bm_entity[:name] = entity.name
+        bm_entity[:type] = 'Store'
+        bm_entity[:profile_picture] = entity.try(:picture).try(:images) || entity.try(:pictures).try(:first).try(:images)
+        bm_entity[:address] = "#{address['city']}, #{address['country']}"
+        bm_entity[:rating] = entity.ratings
       end
-      bm_entity[:address] = address
       entities << bm_entity
 
     end
