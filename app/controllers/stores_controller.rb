@@ -83,7 +83,7 @@ class StoresController < ApplicationController
 
   def show_dressers
     begin
-      render json: StoresHairdresser.where(store: current_store), status: :ok
+      render json: StoresHairdresser.where(store: current_store).map {|h| {request: h, hair_dresser_user: User.sanitize_attributes_user(HairDresser.find(h.hair_dresser_id).user)}}, status: :ok
     rescue => e
       render json: {error: e, store: current_store}, status: :bad_request
     end
@@ -231,7 +231,7 @@ class StoresController < ApplicationController
     c_store = current_store_auth
 
     unless c_store.time_table
-      c_store.time_table = TimeTable.create!(handler: user_t)
+      c_store.time_table = TimeTable.create!(handler: c_store)
     end
 
     tt = TimeSection.create!(day: content['day'],
