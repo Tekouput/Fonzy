@@ -178,7 +178,8 @@ class UsersController < ApplicationController
 
       p start_date, end_date
 
-      time_table = (HairDresser.find params[:h_id]).time_table
+      hair_dresser = (HairDresser.find params[:h_id])
+      time_table = hair_dresser.time_table || hair_dresser.create_time_table
       time_sections = time_table.time_sections.where(day: params[:day])
       breaks = time_sections.each(&:breaks)
       absences = time_table.absences.where("day >= ? AND day <= ?", start_date, end_date)
@@ -253,7 +254,7 @@ class UsersController < ApplicationController
 
   def add_absence
     begin
-      time_table = current_user.hair_dresser.time_table
+      time_table = current_user.hair_dresser.time_table || current_user.hair_dresser.create_time_table
       time_table.absences << Absence.create!(day: params['day'],
                                              init: params['init'],
                                              duration: params['duration'],
@@ -395,7 +396,7 @@ class UsersController < ApplicationController
 
     init = content['init']
     fin = content['end']
-    time_table = user.hair_dresser.time_table
+    time_table = user.hair_dresser.time_table || user.hair_dresser.create_time_table
 
     if time_table
       time_table.time_sections.where(day: content['day']).each do |ts|

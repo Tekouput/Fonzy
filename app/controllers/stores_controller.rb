@@ -248,7 +248,7 @@ class StoresController < ApplicationController
 
     init = content['init']
     fin = content['end']
-    time_table = c_store.time_table
+    time_table = c_store.time_table || c_store.create_time_table
 
     if time_table
       time_table.time_sections.where(day: content['day']).each do |ts|
