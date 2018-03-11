@@ -3,6 +3,7 @@ Rails.application.routes.draw do
   post '/authenticate', to: 'authentication#authenticate'
   get '/user/:provider/token', to: 'authentication#omniauth'
   get '/instagram-feed', to: 'application#instagram_pictures'
+  get '/address', to: 'application#get_address'
 
   scope '/find' do
     get '/list', to: 'stores#show_list'
