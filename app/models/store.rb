@@ -96,7 +96,7 @@ class Store < ApplicationRecord
 
   has_many :services, as: :watcher
   has_many :appointments, as: :handler
-  reverse_geocoded_by :longitude, :latitude do |obj, results|
+  reverse_geocoded_by :latitude, :longitude do |obj, results|
     if geo = results.first
       pr = {
         city: geo.city,
@@ -151,4 +151,21 @@ class Store < ApplicationRecord
     remote.each { |rem| return true if rem["place_id"] == local_id }
     false
   end
+
+  def simple_info
+    begin
+      {
+          id: self.id,
+          title: self.name,
+          zip_code: self.name,
+          description: self.description,
+          ratings: self.ratings,
+          profile_picture: (self.picture || self.pictures.try(:first)).try(:images),
+          address: self.address
+      }
+    rescue => e
+      e
+    end
+  end
+
 end

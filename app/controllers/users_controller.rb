@@ -2,46 +2,61 @@ class UsersController < ApplicationController
   skip_before_action :authenticate_request, only: [:create, :show_public]
 
   def create
-    u = User.find_by_email params[:email]
-    if u
-      if u.password_digest.blank?
-        u.update! password: params[:password], password_confirmation: params[:password_confirmation]
-        render json: u, status: :ok
+    begin
+      u = User.find_by_email params[:email]
+      if u
+        if u.password_digest.blank?
+          u.update! password: params[:password], password_confirmation: params[:password_confirmation]
+          render json: u.sanitize_attributes, status: :ok
+        else
+          render json: {error: 'User exist'}, status: :bad_request
+        end
       else
-        render json: { error: 'User exist' }, status: :bad_request
+        user = User.new email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
+        if user.save
+          render json: user.sanitize_attributes, status: :created
+        else
+          render json: {error: 'Error occurred review passwords or check logs'}, status: :bad_request
+        end
       end
-    else
-      user = User.new email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
-      if user.save
-        render json: user, status: :created
-      else
-        render json: { error: 'Error occurred review passwords or check logs' }, status: :bad_request
-      end
+    rescue => e
+      render json: {error: e}, status: :bad_request
     end
   end
 
   def update
-    user = current_user
-
-    if user
-      user.first_name = params[:first_name]
-      user.last_name = params[:last_name]
-      user.age = params[:birth_date]
-      user.sex = params[:sex]
-      user.zip_code = params[:zip]
-      user.phone_number = params[:phone_number]
-      user.save! ? (render json: user, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
-    else
-      render json: { error: 'Error occurred while saving changes' }, status: :bad_request
+    begin
+      user = current_user
+      if user
+        user.first_name = params[:first_name]
+        user.last_name = params[:last_name]
+        user.age = params[:birth_date]
+        user.sex = params[:sex]
+        user.zip_code = params[:zip]
+        user.phone_number = params[:phone_number]
+        user.save! ? (render json: user.sanitize_atributes, status: :ok) : (render json: {error: 'Error occurred while saving changes'}, status: :bad_request)
+      else
+        render json: {error: 'Error occurred while saving changes'}, status: :bad_request
+      end
+    rescue => e
+      render json: {error: e}, status: :bad_request
     end
   end
 
   def show
-    render json: current_user, status: :ok
+    begin
+      render json: current_user.sanitize_atributes, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   def show_public
-    render json: User.sanitize_atributes(params[:id]), status: :ok
+    begin
+      render json: User.sanitize_atributes(params[:id]), status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   # Images
@@ -54,7 +69,7 @@ class UsersController < ApplicationController
       user.pictures << image
       user.profile_pic = image.id
       user.save!
-      render json: User.sanitize_atributes(user.id), status: :ok
+      render json: user.sanitize_atributes, status: :ok
     rescue => e
       render json: {error: e}, status: :ok
     end
@@ -65,56 +80,60 @@ class UsersController < ApplicationController
       user = current_user
       user.profile_pic = ''
       user.save!
-      render json: User.sanitize_atributes(user.id), status: :ok
+      render json: user.sanitize_atributes, status: :ok
     rescue => e
       render json: {error: e}, status: :ok
     end
   end
 
-  def change_image
-
-  end
-
   # Hair dressser methods
 
   def bind_hair_dresser
-    user = current_user
-    if user
-      hairdresser_info = HairDresser.new(
-          is_independent: params[:is_independent],
-          longitud: params[:longitude],
-          latitud: params[:latitude],
-          description: params[:description],
-          online_payment: params[:online_payment],
-          state: params[:state]
-      )
-      user.hair_dresser = hairdresser_info
-      user.id_hairdresser = true
-      user.save!
+    begin
+      user = current_user
+      if user
+        hairdresser_info = HairDresser.new(
+            is_independent: params[:is_independent],
+            longitude: params[:longitude],
+            latitude: params[:latitude],
+            description: params[:description],
+            online_payment: params[:online_payment],
+            state: params[:state]
+        )
+        user.hair_dresser = hairdresser_info
+        user.id_hairdresser = true
+        user.save!
 
-      hairdresser_info.reverse_geocode
+        hairdresser_info.reverse_geocode
 
-      hairdresser_info.save! ? (render json: { user: user, hairdresser_info: hairdresser_info }, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
-    else
-      render json: { error: 'Error occurred while saving changes' }, status: :bad_request
+        hairdresser_info.save! ? (render json: user.sanitize_atributes, status: :ok) : (render json: {error: 'Error occurred while saving changes'}, status: :bad_request)
+      else
+        render json: {error: 'Error occurred while saving changes'}, status: :bad_request
+      end
+    rescue => e
+      render json: {error: e}, status: :ok
     end
   end
 
   def unbind_hair_dresser
-    user = current_user
-    user.hair_dresser = nil
-    user.id_hairdresser = false
-    user.save!
-    render json: { user: user, hairdresser_info: user.hair_dresser }, status: :ok
+    begin
+      user = current_user
+      user.hair_dresser = nil
+      user.id_hairdresser = false
+      user.save!
+      render json: user.sanitize_atributes, status: :ok
+    rescue => e
+      render json: {error: e}, status: :ok
+    end
   end
 
   # Hairdresser system methods.
 
   def show_shops
     begin
-      render json: StoresHairdresser.where(hair_dresser: current_user.hair_dresser), status: :ok
+      render json: StoresHairdresser.where(hair_dresser: current_user.hair_dresser).map {|sh| sh.sanitize_attributes}, status: :ok
     rescue => e
-      render json: { error: e, user: current_user }, status: :bad_request
+      render json: {error: e, user: current_user.sanitize_atributes}, status: :bad_request
     end
   end
 
@@ -127,9 +146,9 @@ class UsersController < ApplicationController
         confirmation.status = (params[:accept] == 'true' ? 1 : 2)
         confirmation.save!
       end
-      render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+      render json: StoresHairdresser.where(hair_dresser: hair_dresser).map {|sh| sh.sanitize_attributes}, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -144,12 +163,12 @@ class UsersController < ApplicationController
             confirmer: store
         )
         sh.save!
-        render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+        render json: StoresHairdresser.where(hair_dresser: hair_dresser).map {|sh| sh.sanitize_attributes}, status: :ok
       else
         render json: {message: 'User already appended'}, status: :not_modified
       end
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -158,17 +177,21 @@ class UsersController < ApplicationController
       store = Store.find params[:store_id]
       hair_dresser = current_user.hair_dresser
       StoresHairdresser.where(store: store, hair_dresser: hair_dresser).first.destroy!
-      render json: StoresHairdresser.where(hair_dresser: hair_dresser), status: :ok
+      render json: StoresHairdresser.where(hair_dresser: hair_dresser).map {|sh| sh.sanitize_attributes}, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
   # Timetable methods
 
   def get_timetable
-    user = current_user
-    render json: user.hair_dresser.time_table.time_sections, status: :ok
+    begin
+      hair_dresser = HairDresser.find_by(id: params[:dresser_id]) || current_user.hair_dresser
+      render json: hair_dresser.time_table.time_sections.map {|hts| hts.sanitize_attributes}, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   def get_a_time_table
@@ -183,19 +206,23 @@ class UsersController < ApplicationController
       time_sections = time_table.time_sections.where(day: params[:day])
       breaks = time_sections.each(&:breaks)
       absences = time_table.absences.where("day >= ? AND day <= ?", start_date, end_date)
-      render json: { time_sections: time_sections, breaks: breaks, absences: absences }, status: :ok
+      render json: {time_sections: time_sections.map {|hts| hts.sanitize_attributes}, breaks: breaks, absences: absences}, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
   def modify_timetable
-    collides = collision_with_day? params[:timetable_params][:content]
-    if !(collides)[:collision]
-      tt = add_a_timetable(params[:timetable_params][:content])
-      render json: tt, status: :ok
-    else
-      render json: collides, status: :conflict
+    begin
+      collides = collision_with_day? params[:timetable_params][:content]
+      if !(collides)[:collision]
+        tt = add_a_timetable(params[:timetable_params][:content])
+        render json: tt, status: :ok
+      else
+        render json: collides, status: :conflict
+      end
+    rescue => e
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -203,9 +230,9 @@ class UsersController < ApplicationController
     begin
       time_section = current_user.hair_dresser.time_table.time_sections.find(params[:time_section_id])
       time_section.update!(params[:time_section_params].permit!)
-      render json: time_section, status: :ok
+      render json: time_section.sanitize_attributes, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -213,9 +240,9 @@ class UsersController < ApplicationController
     user = current_user
     begin
       (user.hair_dresser.time_table.time_sections.find params[:id]).destroy!
-      render json: {}, status: :ok
+      render json: user.hair_dresser.time_table.time_sections.map {|sth| sth.sanitize_attributes}, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -224,7 +251,7 @@ class UsersController < ApplicationController
       collides = collision_with_day? params[:timetable_params][:content]
       render json: collides, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -237,7 +264,7 @@ class UsersController < ApplicationController
                                           time_section: time_sectio)
       render json: time_sectio.breaks, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -248,7 +275,7 @@ class UsersController < ApplicationController
       break_.destroy!
       render json: time_sectio.breaks, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -261,7 +288,7 @@ class UsersController < ApplicationController
                                              time_table: time_table)
       render json: time_table.absences, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -270,7 +297,7 @@ class UsersController < ApplicationController
       (current_user.hair_dresser.time_table.absences.find params[:absence_id]).destroy!
       render json: current_user.hair_dresser.time_table.absences, status: :ok
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -317,16 +344,16 @@ class UsersController < ApplicationController
 
       get_bookmark
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
   def remove_bookmark
     begin
       (current_user.bookmarks.find params[:id_bookmark]).destroy!
-      render json: current_user.bookmarks, status: :ok
+      get_bookmark
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -334,9 +361,9 @@ class UsersController < ApplicationController
 
   def bookings
     begin
-      render json: current_user.appointments
+      render json: current_user.appointments.map {|cua| cua.sanitize_attributes}
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -346,19 +373,19 @@ class UsersController < ApplicationController
       id = params[:entity_id]
 
       Appointment.create!(
-          handler: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id),
-          user: current_user,
-          service: (Service.find params[:service_id]),
-          book_time: params[:book_time],
-          book_notes: params[:book_notes],
-          book_date: params[:book_date],
-          state: true
+        handler: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id),
+        user: current_user,
+        service: (Service.find params[:service_id]),
+        book_time: params[:book_time],
+        book_notes: params[:book_notes],
+        book_date: params[:book_date],
+        state: true
       )
 
       bookings
 
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -369,7 +396,7 @@ class UsersController < ApplicationController
       booking.save!
       bookings
     rescue => e
-      render json: { error: e }, status: :bad_request
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -388,7 +415,7 @@ class UsersController < ApplicationController
                              time_table: user_t.time_table)
 
     user_t.time_table.time_sections << tt
-    tt
+    tt.sanitize_attributes
   end
 
   def collision_with_day?(content)
@@ -405,14 +432,14 @@ class UsersController < ApplicationController
             (init >= ts.init && fin <= ts.end) ||
             (init <= ts.init && fin >= ts.end)
           p true
-          return { collision: true, cause: ts }
+          return {collision: true, cause: ts}
         else
-          return { collision: false, cause: nil }
+          return {collision: false, cause: nil}
         end
       end
-      { collision: false, cause: nil }
+      {collision: false, cause: nil}
     else
-      { collision: false, cause: nil }
+      {collision: false, cause: nil}
     end
   end
 end

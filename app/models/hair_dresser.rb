@@ -6,7 +6,7 @@ class HairDresser < ApplicationRecord
 
   has_many :services, as: :watcher
   has_many :appointments, as: :handler
-  reverse_geocoded_by :longitud, :latitud do |obj, results|
+  reverse_geocoded_by :latitude, :longitude do |obj, results|
       if geo = results.first
         pr = {
             city: geo.city,
@@ -113,5 +113,21 @@ class HairDresser < ApplicationRecord
     city_stores
   end
 
+  def simple_info
+    begin
+      user = self.user
+      {
+          id: user.hair_dresser.id,
+          first_name: user.first_name,
+          last_name: user.last_name,
+          sex: user.sex,
+          profile_picture: (user.hair_dresser.picture || user.hair_dresser.pictures.try(:first)).try(:images),
+          address: user.hair_dresser.address,
+          rating: user.hair_dresser.rating
+      }
+    rescue => e
+      p e
+    end
+  end
 
 end

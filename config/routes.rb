@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     get '/list', to: 'stores#show_list'
     get '/places', to: 'stores#show_filtered'
     get '/user', to: 'application#query_user'
+    get '/hairdresser', to: 'application#query_dresser'
   end
 
   resource :users
@@ -68,7 +69,6 @@ Rails.application.routes.draw do
       patch '/', to: 'users#change_image'
     end
 
-    resource :appointments
   end
 
   scope :stores do

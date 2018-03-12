@@ -5,7 +5,7 @@ require "addressable/uri"
 class ApplicationController < ActionController::API
   before_action :authenticate_request
   attr_reader :current_user
-  skip_before_action :authenticate_request, only: [:instagram_pictures, :query_user, :get_address]
+  skip_before_action :authenticate_request, only: [:instagram_pictures, :query_user, :get_address, :query_dresser]
 
   def instagram_pictures
     token = '6700053376.fa55fde.f78bb592d8ac4bc884fde11c851cc31c'
@@ -27,6 +27,10 @@ class ApplicationController < ActionController::API
 
   def query_user
     render json: (User.filter_name params['qv']).map {|us| us.simple_info}, status: :ok
+  end
+
+  def query_dresser
+    render json: (User.filter_dresser params['qv']).map {|us| us.simple_info_dresser}, status: :ok
   end
 
   def get_address

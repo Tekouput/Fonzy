@@ -61,6 +61,8 @@ class StoresController < ApplicationController
       maps << str unless Store.contains(stores, str['id'])
     end
 
+    independents = independents.map {|idepe| {dresser_info: idepe.user.simple_info_dresser, hairdresser_user: User.sanitize_atributes(idepe.user_id)}}
+
     render json: { stores: stores, independents: independents, google_maps: maps }, status: :ok
   end
 

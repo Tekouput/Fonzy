@@ -15,21 +15,40 @@ class User < ApplicationRecord
       p results.first
   end
 
-  scope :filter_name, -> (name) { where("concat_ws(' ', first_name, last_name) like ?", "%#{name}%")}
+  scope :filter_name, -> (name) { where("concat_ws(' ', first_name, last_name) like ?", "%#{name}%").limit(50)}
+  scope :filter_dresser, -> (name) { where("concat_ws(' ', first_name, last_name) like ? AND LENGTH(id_hairdresser) > 0", "%#{name}%").limit(50)}
 
 
 
   def self.sanitize_atributes(id)
     user = User.find(id)
     clean_user = {
+      id: user.id,
       first_name: user.first_name,
       last_name: user.last_name,
       sex: user.sex,
+      birth_day: user.age,
       profile_picture: user.pictures.where(id: user.profile_pic).try(:first).try(:images),
       phone_number: user.phone_number,
       email: user.email,
-      store: user.stores.all,
+      stores: user.stores.all,
       hairdresser_information: user.hair_dresser
+    }
+    clean_user
+  end
+
+  def self.sanitize_attributes_user(user)
+    clean_user = {
+        id: user.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        sex: user.sex,
+        birth_day: user.age,
+        profile_picture: Picture.find_by(id: user.profile_pic).try(:images) || user.profile_pic,
+        phone_number: user.phone_number,
+        email: user.email,
+        stores: user.stores.all,
+        hairdresser_information: user.hair_dresser
     }
     clean_user
   end
@@ -37,28 +56,18 @@ class User < ApplicationRecord
   def sanitize_atributes
     user = self
     clean_user = {
+        id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
         sex: user.sex,
-        profile_picture: user.profile_pic,
+        birth_day: user.age,
+        profile_picture: Picture.find_by(id: user.profile_pic).try(:images) || user.profile_pic,
         phone_number: user.phone_number,
         email: user.email,
-        store: user.stores.all,
+        stores: user.stores.all,
         hairdresser_information: user.hair_dresser
     }
-  end
-
-  def self.sanitize_attributes_user(user)
-    clean_user = {
-        first_name: user.first_name,
-        last_name: user.last_name,
-        sex: user.sex,
-        profile_picture: user.profile_pic,
-        phone_number: user.phone_number,
-        email: user.email,
-        store: user.stores.all,
-        hairdresser_information: user.hair_dresser
-    }
+    clean_user
   end
 
   def simple_info
@@ -68,9 +77,26 @@ class User < ApplicationRecord
         first_name: user.first_name,
         last_name: user.last_name,
         sex: user.sex,
-        profile_picture: user.profile_pic,
+        profile_picture: Picture.find_by(id: user.profile_pic).try(:images) || user.profile_pic,
         address: user.last_location
     }
+  end
+
+  def simple_info_dresser
+    begin
+    user = self
+    {
+        id: user.hair_dresser.id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        sex: user.sex,
+        profile_picture: (user.hair_dresser.picture || user.hair_dresser.pictures.try(:first)).try(:images),
+        address: user.hair_dresser.address,
+        rating: user.hair_dresser.rating
+    }
+    rescue => e
+      p e
+    end
   end
 
 end
