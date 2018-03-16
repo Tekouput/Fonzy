@@ -3,7 +3,7 @@ class ClientsController < ApplicationController
 
   def show
     begin
-      render json: @lister.clients, status: :ok
+      render json: @lister.clients.map(&:sanitize_attributes), status: :ok
     rescue => e
       render json: {error: e}, status: :bad_request
     end
@@ -12,7 +12,7 @@ class ClientsController < ApplicationController
   def destroy
     begin
       @lister.clients.find(params[:client_id]).destroy!
-      render json: @lister.clients, status: :ok
+      render json: @lister.clients.map(&:sanitize_attributes), status: :ok
     rescue => e
       render json: {error: e}, status: :bad_request
     end
@@ -37,7 +37,7 @@ class ClientsController < ApplicationController
           lister: @lister
       ) unless Client.where(user: user, lister: @lister).size > 0
 
-      render json: @lister.clients, status: :ok
+      render json: @lister.clients.map(&:sanitize_attributes), status: :ok
     rescue => e
       render json: {error: e}, status: :bad_request
     end

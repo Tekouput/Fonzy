@@ -2,27 +2,31 @@ class AuthenticationController < ApplicationController
   skip_before_action :authenticate_request
 
   def authenticate
-    command = AuthenticateUser.call(params[:email], params[:password])
+    begin
+      command = AuthenticateUser.call(params[:email], params[:password])
 
-    if command.success?
+      if command.success?
 
-      user = command.user
+        user = command.user
 
-      new_state = user.created_at == user.updated_at
-      temp_cre = user.created_at
-      temp_upd = user.updated_at
+        new_state = user.created_at == user.updated_at
+        temp_cre = user.created_at
+        temp_upd = user.updated_at
 
-      user.last_ip = request.remote_ip
-      user.geocode
-      user.save!
+        user.last_ip = request.remote_ip
+        user.geocode
+        user.save!
 
-      if new_state
-        user.update! created_at: temp_cre, updated_at: temp_upd
+        if new_state
+          user.update! created_at: temp_cre, updated_at: temp_upd
+        end
+
+        render json: { auth_token: command.result, user: (User.sanitize_atributes user.id), new_user: user.created_at == user.updated_at}
+      else
+        render json: { error: command.errors }, status: :unauthorized
       end
-
-      render json: { auth_token: command.result, user: (User.sanitize_atributes user.id), new_user: user.created_at == user.updated_at}
-    else
-      render json: { error: command.errors }, status: :unauthorized
+    rescue => e
+      render json: {error: e}
     end
   end
 

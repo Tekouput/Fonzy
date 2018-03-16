@@ -1,13 +1,13 @@
 class StoreTransactionsController < ApplicationController
-  def create
 
+  def create
     store = Store.find params[:store_id]
     st = StoreTransaction.find_or_create_by!(
         requester: current_user,
         store: store,
         status: 0
     )
-    render json: st, status: :ok
+    render json: st.sanitize_attributes, status: :ok
   rescue => e
     render json: {error: e}, status: :ok
 
@@ -17,9 +17,9 @@ class StoreTransactionsController < ApplicationController
 
     case params[:type]
       when 'store'
-        render json: StoreTransaction.where(store: current_user.stores.find(params[:store_id])), status: :ok
+        render json: StoreTransaction.where(store: current_user.stores.find(params[:store_id])).map(&:sanitize_attributes), status: :ok
       else
-        render json: StoreTransaction.where(requester_id: current_user.id), status: :ok
+        render json: StoreTransaction.where(requester_id: current_user.id).map(&:sanitize_attributes), status: :ok
     end
   rescue => e
     render json: {error: e}, status: :ok
@@ -49,7 +49,7 @@ class StoreTransactionsController < ApplicationController
         st.status = 2
       end
       st.save!
-      render json: st, status: :ok
+      render json: st.sanitize_attributes, status: :ok
     rescue => e
       render json: {error: e}, status: :ok
     end

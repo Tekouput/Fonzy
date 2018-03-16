@@ -7,7 +7,7 @@ class UsersController < ApplicationController
       if u
         if u.password_digest.blank?
           u.update! password: params[:password], password_confirmation: params[:password_confirmation]
-          render json: u.sanitize_attributes, status: :ok
+          render json: u.sanitize_atributes, status: :ok
         else
           render json: {error: 'User exist'}, status: :bad_request
         end

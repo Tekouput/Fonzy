@@ -50,7 +50,7 @@ class BookingsController < ApplicationController
       params[:context] = 'requests'
       show
     rescue => e
-      render json: {error: e}, status: :ok
+      render json: { error: e }, status: :ok
     end
   end
 
@@ -61,7 +61,7 @@ class BookingsController < ApplicationController
       params[:context] = 'requests'
       show
     rescue => e
-      render json: {error: e}, status: :ok
+      render json: { error: e }, status: :ok
     end
   end
 
@@ -69,9 +69,12 @@ class BookingsController < ApplicationController
     begin
       case params[:context]
       when 'requests'
-        render json: BookingsRequest.where(handler: @handler), status: :ok
+        render json: BookingsRequest.where(handler: @handler).map(&:sanitize_attributes), status: :ok
+      when 'all'
+        render json: { requests: BookingsRequest.where(handler: @handler).map(&:sanitize_attributes),
+                       aproved: Appointment.where(handler: @handler).map(&:sanitize_attributes) }, status: :ok
       else
-        render json: Appointment.where(handler: @handler), status: :ok
+        render json: Appointment.where(handler: @handler).map(&:sanitize_attributes), status: :ok
       end
     rescue => e
       render json: { error: e }, status: :bad_request
@@ -87,29 +90,29 @@ class BookingsController < ApplicationController
       if accepted
         a_request.status = 1
         a = Appointment.create!(
-            handler: a_request.handler,
-            user: a_request.user,
-            service: a_request.service,
-            book_time: a_request.book_time,
-            book_notes: a_request.book_notes,
-            book_date: a_request.book_date
+          handler: a_request.handler,
+          user: a_request.user,
+          service: a_request.service,
+          book_time: a_request.book_time,
+          book_notes: a_request.book_notes,
+          book_date: a_request.book_date
         )
         a_request.user.appointments << a
       else
         a_request.status = 2
       end
       a_request.save!
-      render json: current_user.bookings_requests, satus: :ok
+      render json: current_user.bookings_requests.map(&:sanitize_attributes), satus: :ok
     rescue => e
-      render json: {error: e}, status: :ok
+      render json: { error: e }, status: :ok
     end
   end
 
   def show_confirmations
     begin
-      render json: current_user.bookings_requests, status: :ok
+      render json: current_user.bookings_requests.map(&:sanitize_attributes), status: :ok
     rescue => e
-      render json: {error: e}, status: :ok
+      render json: { error: e }, status: :ok
     end
   end
 

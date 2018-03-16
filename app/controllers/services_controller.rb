@@ -3,23 +3,26 @@ class ServicesController < ApplicationController
   attr_accessor :resource
 
   def create
+    begin
+      @resource = nil
+      set_resource_auth
 
-    @resource = nil
-    set_resource_auth
-
-    if @resource.nil?
-      render json: {error: "User or store not found"}, status: :not_found
-    else
-      service = Service.new(
-          name: params['name'],
-          description: params['description'],
-          price: params['price'],
-          duration: params['duration']
-      )
-      @resource.services << service
-      service.save!
-      @resource.save!
-      render json: service, status: :created
+      if @resource.nil?
+        render json: {error: "User or store not found"}, status: :not_found
+      else
+        service = Service.new(
+            name: params['name'],
+            description: params['description'],
+            price: params['price'],
+            duration: params['duration']
+        )
+        @resource.services << service
+        service.save!
+        @resource.save!
+        render json: service.sanitize_info, status: :created
+      end
+    rescue => e
+      render json: {error: e}, status: :ok
     end
   end
 
@@ -28,14 +31,14 @@ class ServicesController < ApplicationController
     if @resource.nil?
       render json: {error: "It's possible that the especified user doesnt have an store or that the store doesnt exist"}, status: :not_found
     else
-      render json: @resource.services.all, status: :ok
+      render json: @resource.services.map(&:sanitize_info), status: :ok
     end
   end
 
   def destroy
     set_resource_auth
     @resource.services.find(params[:service_id]).destroy!
-    render json: @resource.services.all, status: :ok
+    render json: @resource.services.map(&:sanitize_info), status: :ok
   end
 
   private

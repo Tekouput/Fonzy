@@ -23,7 +23,6 @@ class Appointment < ApplicationRecord
     rescue => e
       e
     end
-
   end
 
 end

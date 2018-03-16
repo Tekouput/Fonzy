@@ -55,7 +55,7 @@ class User < ApplicationRecord
 
   def sanitize_atributes
     user = self
-    clean_user = {
+    {
         id: user.id,
         first_name: user.first_name,
         last_name: user.last_name,
@@ -67,7 +67,6 @@ class User < ApplicationRecord
         stores: user.stores.all,
         hairdresser_information: user.hair_dresser
     }
-    clean_user
   end
 
   def simple_info

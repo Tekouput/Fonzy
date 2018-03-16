@@ -72,7 +72,7 @@ Rails.application.routes.draw do
   end
 
   scope :stores do
-    get '/:store_id/all_info', to: 'stores#show_all'
+    get '/all_info', to: 'stores#show_all'
 
     scope '/hairdressers' do
       get '/', to: 'stores#show_dressers'

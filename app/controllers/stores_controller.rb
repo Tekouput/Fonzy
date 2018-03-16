@@ -10,7 +10,7 @@ class StoresController < ApplicationController
     current_user.save!
 
     if store
-      render json: store, status: :created
+      render json: store.simple_info, status: :created
     else
       render json: { error: 'Resource can not be created' }, status: :bad_request
     end
@@ -29,7 +29,11 @@ class StoresController < ApplicationController
   end
 
   def show_all
-    render json: { basic_info: JSON.parse(current_store.to_json(methods: [:reverse_geocode])), hairdressers: current_store.users.all, services: current_store.services.all, photos: current_store.pictures, owner: current_store.owner }, code: :ok
+    begin
+      render json: { basic_info: current_store.simple_info, hairdressers: current_store.users.all, services: current_store.services.map {|ser| ser.sanitize_info}, photos: current_store.pictures.map {|pic| pic.images}, owner: current_store.owner.sanitize_atributes }, code: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   def show_filtered
@@ -75,7 +79,7 @@ class StoresController < ApplicationController
       store.zip_code = params[:zip_code]
       store.description = params[:description]
       store.style = params[:style]
-      store.save! ? (render json: store, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
+      store.save! ? (render json: store.simple_info, status: :ok) : (render json: { error: 'Error occurred while saving changes' }, status: :bad_request)
     else
       render json: { error: 'Error occurred while saving changes' }, status: :bad_request
     end
@@ -127,7 +131,7 @@ class StoresController < ApplicationController
     end
 
     if success
-      render json: StoresHairdresser.where(store: store), status: :ok
+      render json: StoresHairdresser.where(store: store).map(&:sanitize_attributes), status: :ok
     else
       render json: { error: 'Invalid request' }, status: :bad_request
     end
@@ -138,7 +142,7 @@ class StoresController < ApplicationController
       store = current_store_auth
       hair_dresser = HairDresser.find params[:dresser_id]
       StoresHairdresser.where(store: store, hair_dresser: hair_dresser).first.destroy!
-      render json: StoresHairdresser.where(store: store), status: :ok
+      render json: StoresHairdresser.where(store: store).map(&:sanitize_attributes), status: :ok
     rescue => e
       render json: { error: e}, status: :bad_request
     end

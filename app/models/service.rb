@@ -5,6 +5,7 @@ class Service < ApplicationRecord
   def sanitize_info
     begin
       {
+          id: id,
           name: name,
           description: description,
           price: price,
