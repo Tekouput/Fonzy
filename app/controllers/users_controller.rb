@@ -306,25 +306,26 @@ class UsersController < ApplicationController
   def get_bookmark
     entities = []
     for bm in current_user.bookmarks
+      if bm.entity
       entity = bm.entity
-      address = JSON.parse(entity.address.to_json)
+      address = JSON.parse(entity.address.to_json) if entity.address
       bm_entity = {}.as_json
       bm_entity[:id] = entity.id
       if entity.class == HairDresser
         bm_entity[:name] = "#{entity.user.first_name} #{entity.user.last_name}"
         bm_entity[:type] = 'HairDresser'
         bm_entity[:profile_picture] = entity.try(:picture).try(:images) || entity.try(:pictures).try(:first).try(:images)
-        bm_entity[:address] = "#{address['city']}, #{address['country']}"
+        bm_entity[:address] = "#{address['city']}, #{address['country']}" if address
         bm_entity[:rating] = entity.rating
       else
         bm_entity[:name] = entity.name
         bm_entity[:type] = 'Store'
         bm_entity[:profile_picture] = entity.try(:picture).try(:images) || entity.try(:pictures).try(:first).try(:images)
-        bm_entity[:address] = "#{address['city']}, #{address['country']}"
+        bm_entity[:address] = "#{address['city']}, #{address['country']}" if address
         bm_entity[:rating] = entity.ratings
       end
       entities << bm_entity
-
+        end
     end
     render json: entities, status: :ok
   end
