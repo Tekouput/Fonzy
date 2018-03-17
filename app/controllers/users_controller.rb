@@ -30,7 +30,7 @@ class UsersController < ApplicationController
       if user
         user.first_name = params[:first_name]
         user.last_name = params[:last_name]
-        user.age = params[:birth_date]
+        user.birth_date = params[:birth_day]
         user.sex = params[:sex]
         user.zip_code = params[:zip]
         user.phone_number = params[:phone_number]
