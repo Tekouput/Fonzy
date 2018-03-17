@@ -48,7 +48,7 @@ class PicturesController < ApplicationController
 
 
   def set_resource_public
-    @resource = (request.original_url.include? 'stores') ? Store.find(params[:store_id]) : HairDresser.find(params[:dresser_id])
+    @resource = (request.original_url.include? 'stores') ? Store.find(params[:store_id]) : HairDresser.find(params[:dresser_id] || current_user.hair_dresser.id)
   end
 
   def set_resource
