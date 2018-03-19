@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191203031025) do
+ActiveRecord::Schema.define(version: 20191203031028) do
 
   create_table "absences", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "time_table_id"
@@ -25,13 +25,20 @@ ActiveRecord::Schema.define(version: 20191203031025) do
     t.integer "handler_id"
     t.string "handler_type"
     t.integer "user_id"
-    t.integer "service_id"
     t.string "book_time"
     t.text "book_notes"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.boolean "state", default: false, null: false
     t.date "book_date"
+    t.integer "payment_method", default: 0
+  end
+
+  create_table "appointments_services", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string "appointment_id"
+    t.string "service_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "bookings_requests", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -39,12 +46,16 @@ ActiveRecord::Schema.define(version: 20191203031025) do
     t.string "handler_type"
     t.string "user_id"
     t.integer "status"
-    t.integer "service_id"
     t.string "book_time"
     t.text "book_notes"
     t.date "book_date"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+  end
+
+  create_table "bookings_requests_services", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string "bookings_request_id"
+    t.string "service_id"
   end
 
   create_table "bookmarks", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
@@ -75,8 +86,8 @@ ActiveRecord::Schema.define(version: 20191203031025) do
 
   create_table "hair_dressers", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.boolean "is_independent"
-    t.string "longitud"
-    t.string "latitud"
+    t.string "longitude"
+    t.string "latitude"
     t.text "description"
     t.boolean "online_payment"
     t.decimal "rating", precision: 2, scale: 2
@@ -88,6 +99,17 @@ ActiveRecord::Schema.define(version: 20191203031025) do
     t.json "address"
   end
 
+  create_table "invoices", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=latin1" do |t|
+    t.string "description"
+    t.string "emitter_id"
+    t.string "emitter_type"
+    t.string "appointment_id"
+    t.string "tax_id"
+    t.string "stripe_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "pictures", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -96,8 +118,8 @@ ActiveRecord::Schema.define(version: 20191203031025) do
     t.integer "image_file_size"
     t.datetime "image_updated_at"
     t.integer "owner_id"
-    t.integer "store_showcase_id"
-    t.string "store_showcase_type", limit: 45
+    t.integer "owner_main_id"
+    t.string "owner_main_type", limit: 45
     t.string "owner_type", limit: 45
   end
 
@@ -163,8 +185,8 @@ ActiveRecord::Schema.define(version: 20191203031025) do
   create_table "users", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
     t.string "first_name"
     t.string "last_name"
-    t.date "age"
     t.string "sex"
+    t.date "birth_date"
     t.string "zip_code"
     t.string "profile_pic"
     t.string "phone_number"

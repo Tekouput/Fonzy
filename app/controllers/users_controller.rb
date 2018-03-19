@@ -373,14 +373,21 @@ class UsersController < ApplicationController
       type = params[:type]
       id = params[:entity_id]
 
-      Appointment.create!(
+      appointment = Appointment.create!(
         handler: (type.eql? 'hairdresser') ? (HairDresser.find id) : (Store.find id),
         user: current_user,
-        service: (Service.find params[:service_id]),
+        services: (Service.find params[:services_id]),
         book_time: params[:book_time],
         book_notes: params[:book_notes],
         book_date: params[:book_date],
         state: true
+      )
+
+      Invoice.create!(
+        #description: params[:description],
+        emitter: appointment.handler,
+        appointment: appointment,
+        payment_method: params[:payment_method]
       )
 
       bookings

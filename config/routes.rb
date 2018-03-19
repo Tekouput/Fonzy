@@ -69,6 +69,10 @@ Rails.application.routes.draw do
       patch '/', to: 'users#change_image'
     end
 
+    patch '/invoice/pay', to: 'invoice#update'
+    patch '/invoice/refund', to: 'invoice#destroy'
+    get '/invoice/info', to: 'invoice#show'
+
   end
 
   scope :stores do

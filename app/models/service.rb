@@ -1,6 +1,6 @@
 class Service < ApplicationRecord
   belongs_to :watcher, polymorphic: true
-  has_many :appointments
+  has_and_belongs_to_many :appointments
 
   def sanitize_info
     begin

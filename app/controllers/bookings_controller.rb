@@ -4,12 +4,12 @@ class BookingsController < ApplicationController
 
   def create
     begin
-      service = @handler.services.find params[:service_id]
+      services = @handler.services.find params[:services_id]
       br = BookingsRequest.create!(
         handler: @handler,
         user: @user,
         status: @new_user ? 3 : 0,
-        service: service,
+        services: services,
         book_time: params[:book_time],
         book_notes: params[:book_notes],
         book_date: params[:book_date]
@@ -20,11 +20,19 @@ class BookingsController < ApplicationController
         a = Appointment.create!(
           handler: br.handler,
           user: br.user,
-          service: br.service,
+          services: br.services.map(&:sanitize_info),
           book_time: br.book_time,
           book_notes: br.book_notes,
           book_date: br.book_date
         )
+
+        Invoice.create!(
+          description: params[:description],
+          emitter: a.handler,
+          appointment: a,
+          payment_method: 0
+        )
+
         br.user.appointments << a
       end
 
@@ -37,13 +45,13 @@ class BookingsController < ApplicationController
 
   def update
     begin
-      service = @handler.services.find params[:service_id] if params[:service_id].present?
+      services = @handler.services.find params[:services_id] if params[:services_id].present?
       book_time = params[:book_time] if params[:book_time].present?
       book_notes = params[:book_notes] if params[:book_notes].present?
       book_date = params[:book_date] if params[:book_date].present?
 
       br = @handler.bookings_requests.find params[:request_id]
-      br.update! service: service unless service.nil?
+      br.update! services: services unless services.nil?
       br.update! book_time: book_time unless book_time.nil?
       br.update! book_notes: book_notes unless book_notes.nil?
       br.update! book_date: book_date unless book_date.nil?
@@ -92,11 +100,19 @@ class BookingsController < ApplicationController
         a = Appointment.create!(
           handler: a_request.handler,
           user: a_request.user,
-          service: a_request.service,
+          services: a_request.services,
           book_time: a_request.book_time,
           book_notes: a_request.book_notes,
           book_date: a_request.book_date
         )
+
+        Invoice.create!(
+          #description: params[:description],
+          emitter: appointment.handler,
+          appointment: appointment,
+          payment_method: params[:payment_method]
+        )
+
         a_request.user.appointments << a
       else
         a_request.status = 2

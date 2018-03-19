@@ -119,6 +119,8 @@ class Store < ApplicationRecord
 
   has_many :store_transactions
 
+  has_many :invoice, as: :emitter
+
   def self.near_by_google(latitude, longitude, distance, style)
     f = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=#{latitude},#{longitude}&radius=#{distance}&type=#{style}&key=#{ENV['GOOGLE_KEY_MAPS']}"
     url = URI(f)

@@ -32,6 +32,8 @@ class HairDresser < ApplicationRecord
   has_many :bookings_requests, as: :handler
   has_many :users, through: :bookings_requests
 
+  has_many :invoice, as: :emitter
+
 
   def self.open_at(time, stores)
     open_stores = []

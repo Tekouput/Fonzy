@@ -1,7 +1,7 @@
 class BookingsRequest < ApplicationRecord
   belongs_to :handler, polymorphic: true
   belongs_to :user
-  belongs_to :service
+  has_and_belongs_to_many :services
 
   def sanitize_attributes
     begin
@@ -13,7 +13,7 @@ class BookingsRequest < ApplicationRecord
           book_note: booking_request.book_notes,
           book_date: booking_request.book_date,
           # payment_method: booking_request.payment_method,
-          service: booking_request.service.sanitize_info,
+          services: booking_request.services.map(&:sanitize_info),
           handler: {
               type: booking_request.handler.class.name,
               info: booking_request.handler.try(:simple_info)
