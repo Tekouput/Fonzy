@@ -91,7 +91,7 @@ Rails.application.configure do
           secret_access_key: ENV.fetch('AWS_SECRET_ACCESS_KEY')
       }
   }
-  Paperclip::Attachment.default_options[:url] = 'https://s3.ap-northeast-2.amazonaws.com/fonzy-api/'
+  Paperclip::Attachment.default_options[:url] = 'https://s3-us-west-2.amazonaws.com/fonzy/'
   Paperclip::Attachment.default_options[:path] = '/:class/:attachment/:id_partition/:style/:filename'
 
 end
