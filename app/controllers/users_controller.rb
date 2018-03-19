@@ -310,7 +310,8 @@ class UsersController < ApplicationController
       entity = bm.entity
       address = JSON.parse(entity.address.to_json) if entity.address
       bm_entity = {}.as_json
-      bm_entity[:id] = entity.id
+      bm_entity[:id] = bm.id
+      bm_entity[:entity_id] = entity.id
       if entity.class == HairDresser
         bm_entity[:name] = "#{entity.user.first_name} #{entity.user.last_name}"
         bm_entity[:type] = 'HairDresser'
