@@ -13,6 +13,7 @@ class InvoiceController < ApplicationController
 
     @invoice.stripe_id = charge.id
     @invoice.save!
+    render json: @invoice.sanitize_parameters, status: :ok
   end
 
   def destroy
