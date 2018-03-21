@@ -1,5 +1,5 @@
 class InvoiceController < ApplicationController
-  before_action :get_emitter
+  before_action :get_emitter, except: :ephemeral_key
   before_action :set_stripe_apy_key
 
   def update
@@ -25,6 +25,18 @@ class InvoiceController < ApplicationController
       render json: @invoice.sanitize_parameters, status: :ok
     rescue => e
         render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def ephemeral_key
+    begin
+      key = Stripe::EphemeralKey.create(
+                                    {customer: current_user.stripe_id},
+                                    {stripe_version: '2018-02-28'}
+      )
+      render json: key.to_json, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
     end
   end
 
@@ -62,10 +74,6 @@ class InvoiceController < ApplicationController
     rescue => e
       render json: { error: 'Not Authorized' }, status: 401
     end
-  end
-
-  def set_stripe_apy_key
-    Stripe.api_key = ENV['STRIPE_KEY']
   end
 
 end

@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   skip_before_action :authenticate_request, only: [:create, :show_public]
+  before_action :set_stripe_apy_key
 
   def create
     begin
@@ -7,14 +8,23 @@ class UsersController < ApplicationController
       if u
         if u.password_digest.blank?
           u.update! password: params[:password], password_confirmation: params[:password_confirmation]
+          stripe_customer = Stripe::Customer.create(
+              description: "Customer for #{ u.email }"
+          )
+          u.stripe_id = stripe_customer.id
+          u.save!
           render json: u.sanitize_atributes, status: :ok
         else
           render json: {error: 'User exist'}, status: :bad_request
         end
       else
         user = User.new email: params[:email], password: params[:password], password_confirmation: params[:password_confirmation]
+        stripe_customer = Stripe::Customer.create(
+                            description: "Customer for #{ user.email }"
+        )
+        user.stripe_id = stripe_customer.id
         if user.save
-          render json: user.sanitize_attributes, status: :created
+          render json: user.sanitize_atributes, status: :created
         else
           render json: {error: 'Error occurred review passwords or check logs'}, status: :bad_request
         end

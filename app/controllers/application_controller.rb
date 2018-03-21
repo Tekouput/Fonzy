@@ -37,6 +37,10 @@ class ApplicationController < ActionController::API
     render json: Geocoder::search([params[:latitude], params[:longitude]]).first
   end
 
+  def set_stripe_apy_key
+    Stripe.api_key = ENV['STRIPE_KEY']
+  end
+
   private
 
   def authenticate_request
