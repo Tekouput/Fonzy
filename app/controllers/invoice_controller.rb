@@ -3,17 +3,21 @@ class InvoiceController < ApplicationController
   before_action :set_stripe_apy_key
 
   def update
-    token = params[:stripe_token]
-    charge = Stripe::Charge.create(
-      amount: (@invoice.get_amount * 100).to_int,
-      currency: 'usd',
-      description: "Services of #{@invoice.appointment.services.map(&:name)}",
-      source: token
-    )
+    begin
+      token = params[:stripe_token]
+      charge = Stripe::Charge.create(
+        amount: (@invoice.get_amount * 100).to_int,
+        currency: 'usd',
+        description: "Services of #{@invoice.appointment.services.map(&:name)}",
+        source: token
+      )
 
-    @invoice.stripe_id = charge.id
-    @invoice.save!
-    render json: @invoice.sanitize_parameters, status: :ok
+      @invoice.stripe_id = charge.id
+      @invoice.save!
+      render json: @invoice.sanitize_parameters, status: :ok
+    rescue => e
+      render json: { error: e }, status: :ok
+    end
   end
 
   def destroy

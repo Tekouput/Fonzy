@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   get '/user/:provider/token', to: 'authentication#omniauth'
   get '/instagram-feed', to: 'application#instagram_pictures'
   get '/address', to: 'application#get_address'
+  post '/notify-device-token', to: 'application#change_token'
 
   scope '/find' do
     get '/list', to: 'stores#show_list'
@@ -72,10 +73,9 @@ Rails.application.routes.draw do
   end
 
   scope '/invoice' do
-
     patch '/pay', to: 'invoice#update'
-    patch '/refund', to: 'invoice#destroy'
-    get '/info', to: 'invoice#show'
+    #patch '/refund', to: 'invoice#destroy'
+    #get '/info', to: 'invoice#show'
     post '/key', to: 'invoice#ephemeral_key'
   end
 

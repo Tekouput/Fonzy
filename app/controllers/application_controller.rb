@@ -41,6 +41,15 @@ class ApplicationController < ActionController::API
     Stripe.api_key = ENV['STRIPE_KEY']
   end
 
+  def change_token
+    begin
+      current_user.device_token = params[:device_token]
+      render json: {success: true}, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
   private
 
   def authenticate_request
