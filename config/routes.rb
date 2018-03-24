@@ -76,7 +76,7 @@ Rails.application.routes.draw do
     patch '/pay', to: 'invoice#update'
     patch '/refund', to: 'invoice#destroy'
     get '/info', to: 'invoice#show'
-    get '/key', to: 'invoice#ephemeral_key'
+    post '/key', to: 'invoice#ephemeral_key'
   end
 
   scope :stores do

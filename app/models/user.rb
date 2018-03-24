@@ -76,8 +76,10 @@ class User < ApplicationRecord
         first_name: user.first_name,
         last_name: user.last_name,
         sex: user.sex,
-        profile_picture: Picture.find_by(id: user.profile_pic).try(:images) || user.profile_pic,
-        address: user.last_location
+        profile_picture: Picture.find_by(id: user.profile_pic).try(:images) || {id: -1, big: user.profile_pic, medium: user.profile_pic, thumb: user.profile_pic},
+        address: user.last_location,
+        email: user.email,
+        phone: user.phone_number
     }
   end
 

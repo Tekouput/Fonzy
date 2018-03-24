@@ -32,7 +32,7 @@ class InvoiceController < ApplicationController
     begin
       key = Stripe::EphemeralKey.create(
                                     {customer: current_user.stripe_id},
-                                    {stripe_version: '2018-02-28'}
+                                    {stripe_version: params[:api_version]}
       )
       render json: key.to_json, status: :ok
     rescue => e
