@@ -70,6 +70,13 @@ Rails.application.routes.draw do
       patch '/', to: 'users#change_image'
     end
 
+    scope '/payments' do
+      scope '/methods' do
+        post '/card', to: 'invoice#append_card'
+        patch '/card', to: 'invoice#update_card'
+      end
+    end
+
   end
 
   scope '/invoice' do
