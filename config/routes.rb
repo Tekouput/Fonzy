@@ -72,8 +72,12 @@ Rails.application.routes.draw do
 
     scope '/payments' do
       scope '/methods' do
+        get '/cards', to: 'invoice#get_cards'
+        get '/card', to: 'invoice#get_card'
         post '/card', to: 'invoice#append_card'
         patch '/card', to: 'invoice#update_card'
+        put '/card', to: 'invoice#change_default'
+        delete '/card', to: 'invoice#delete_card'
       end
     end
 

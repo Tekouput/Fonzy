@@ -1,5 +1,5 @@
 class InvoiceController < ApplicationController
-  before_action :get_emitter, except: %i[ephemeral_key append_card update_card]
+  before_action :get_emitter, except: %i[ephemeral_key append_card update_card change_default delete_card get_cards get_card]
   before_action :set_stripe_apy_key
 
   def update
@@ -10,12 +10,22 @@ class InvoiceController < ApplicationController
         render json: { error: "Already succeeded" }, status: :bad_request
       else
         token = params[:stripe_token]
-        charge = Stripe::Charge.create(
-          amount: (@invoice.get_amount * 100).to_int,
-          currency: 'usd',
-          description: "Services of #{@invoice.appointment.services.map(&:name)}",
-          source: token
-        )
+
+        if token.present?
+          charge = Stripe::Charge.create(
+            amount: (@invoice.get_amount * 100).to_int,
+            currency: 'usd',
+            description: "Services of #{@invoice.appointment.services.map(&:name)}",
+            source: token
+          )
+        else
+          charge = Stripe::Charge.create(
+            amount: (@invoice.get_amount * 100).to_int,
+            currency: 'usd',
+            description: "Services of #{@invoice.appointment.services.map(&:name)}",
+            customer: current_user.stripe_id
+          )
+        end
 
         @invoice.stripe_id = charge.id
         @invoice.save!
@@ -52,11 +62,29 @@ class InvoiceController < ApplicationController
 
   #Cards method
 
+  def get_card
+    begin
+      customer = Stripe::Customer.retrieve(current_user.stripe_id)
+      render json: customer.sources.retrieve(params[:card_id]), status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
+  def get_cards
+    begin
+      customer = Stripe::Customer.retrieve(current_user.stripe_id)
+      render json: customer.sources.all, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
+  end
+
   def append_card
     begin
       customer = Stripe::Customer.retrieve(current_user.stripe_id)
       customer.sources.create(source: params[:source_id])
-      render json: {stripe_customer_info: customer, stripe_sources: customer.sources.all}
+      render json: customer.sources.all, status: :ok
     rescue => e
       render json: {error: e}, status: :bad_request
     end
@@ -91,11 +119,24 @@ class InvoiceController < ApplicationController
   end
 
   def change_default
-
+    begin
+      customer = Stripe::Customer.retrieve(current_user.stripe_id)
+      customer.default_source = params[:source_id]
+      customer.save
+      render json: customer, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   def delete_card
-
+    begin
+      customer = Stripe::Customer.retrieve(current_user.stripe_id)
+      customer.sources.retrieve(params[:card_id]).try(:delete)
+      render json: customer, status: :ok
+    rescue => e
+      render json: {error: e}, status: :bad_request
+    end
   end
 
   private
